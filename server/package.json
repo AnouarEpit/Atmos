@@ -1,0 +1,17 @@
+{
+  "name": "atmos-server",
+  "version": "1.0.0",
+  "description": "Backend proxy Express para Atmos: expone /api/clima y /api/noticias sin exponer API keys al cliente.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "start": "node index.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
