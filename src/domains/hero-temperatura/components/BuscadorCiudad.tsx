@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ciudades, type Ciudad } from '../../../lib/data/ciudades'
 
 interface Props {
@@ -8,6 +8,12 @@ interface Props {
 export function BuscadorCiudad({ onSeleccionar }: Props) {
   const [consulta, setConsulta] = useState('')
   const [abierto, setAbierto] = useState(false)
+  const cierreTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Evita que un timeout de un blur anterior (nunca cancelado) cierre un dropdown reabierto para otra búsqueda.
+  useEffect(() => () => {
+    if (cierreTimeoutRef.current) clearTimeout(cierreTimeoutRef.current)
+  }, [])
 
   const resultados = consulta.trim()
     ? ciudades.filter((ciudad) => ciudad.nombre.toLowerCase().includes(consulta.trim().toLowerCase()))
@@ -22,8 +28,14 @@ export function BuscadorCiudad({ onSeleccionar }: Props) {
             setConsulta(evento.target.value)
             setAbierto(true)
           }}
-          onFocus={() => setAbierto(true)}
-          onBlur={() => setTimeout(() => setAbierto(false), 100)}
+          onFocus={() => {
+            if (cierreTimeoutRef.current) clearTimeout(cierreTimeoutRef.current)
+            setAbierto(true)
+          }}
+          onBlur={() => {
+            if (cierreTimeoutRef.current) clearTimeout(cierreTimeoutRef.current)
+            cierreTimeoutRef.current = setTimeout(() => setAbierto(false), 100)
+          }}
           placeholder="Rechercher une ville…"
           className="w-full bg-transparent font-sans text-atmos-bone placeholder:text-atmos-bone/50 outline-none"
         />
@@ -37,7 +49,11 @@ export function BuscadorCiudad({ onSeleccionar }: Props) {
             <li key={ciudad.slug}>
               <button
                 type="button"
-                onClick={() => {
+                onMouseDown={(evento) => {
+                  // mousedown se dispara antes que el blur del input — preventDefault evita
+                  // que el input pierda el foco y dispare el cierre del dropdown a mitad del clic.
+                  evento.preventDefault()
+                  if (cierreTimeoutRef.current) clearTimeout(cierreTimeoutRef.current)
                   onSeleccionar(ciudad)
                   setConsulta('')
                   setAbierto(false)

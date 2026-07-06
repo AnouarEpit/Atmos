@@ -10,9 +10,10 @@ export function Forecast({ dias }: Props) {
 
   return (
     <section id="previsions" className="bg-atmos-bone px-6 md:px-10 py-16">
-      <h2 className="font-display text-2xl text-atmos-ink mb-1">Prévisions 7 jours</h2>
-      <div className="h-px w-full bg-atmos-slate/20 mb-8" />
-      <div className="flex gap-4 overflow-x-auto pb-2">
+      <h2 className="font-display text-[2.625rem] font-light text-atmos-ink text-center mb-10">
+        Prévisions 7 jours
+      </h2>
+      <div className="flex flex-wrap justify-center gap-4">
         {dias.slice(0, 7).map((dia, indice) => (
           <TarjetaDia
             key={dia.dt}

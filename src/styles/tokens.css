@@ -43,3 +43,25 @@ body {
 #root {
   min-height: 100svh;
 }
+
+/*
+ * Loops ambientales de datos-detalle (IconoAnimado). Solo animan
+ * transform/opacity — nunca disparan layout/reflow — coherente con
+ * MOTION 4/10: presencia sutil, no un efecto llamativo.
+ */
+@keyframes atmos-pulso-opacidad {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+@keyframes atmos-pulso-escala {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+@keyframes atmos-oscilar-aguja {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+@keyframes atmos-viento {
+  0%, 100% { transform: translateX(0); opacity: 0.35; }
+  50% { transform: translateX(3px); opacity: 1; }
+}
