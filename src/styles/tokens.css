@@ -65,3 +65,12 @@ body {
   0%, 100% { transform: translateX(0); opacity: 0.35; }
   50% { transform: translateX(3px); opacity: 1; }
 }
+@keyframes atmos-pulso-opacidad-sutil {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+/* Ondas de viento de ResumenCiudad: stroke-dashoffset causa repintado del propio SVG, no reflow del layout circundante (no cambia geometría de otros elementos) — verificado igual que el resto de animaciones de este archivo. */
+@keyframes atmos-viento-flujo {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -48; }
+}

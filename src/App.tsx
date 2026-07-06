@@ -27,7 +27,7 @@ export default function App() {
       />
       <Forecast dias={clima?.daily} />
       <DatosDetalle actual={clima?.current} />
-      <Noticias ciudad={ciudadActual.nombre} />
+      <Noticias ciudad={ciudadActual} clima={clima} />
     </>
   )
 }

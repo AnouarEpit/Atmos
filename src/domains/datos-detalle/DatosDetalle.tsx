@@ -1,16 +1,10 @@
 import type { ClimaActual } from '../../lib/api/tipos'
-import { nivelUV } from '../../lib/clima/formato'
+import { nivelUV, direccionViento } from '../../lib/clima/formato'
 import { GridDato } from './components/GridDato'
 import { IconoAnimado } from './components/IconoAnimado'
 
 interface Props {
   actual?: ClimaActual
-}
-
-const DIRECCIONES = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO']
-
-function direccionViento(grados: number): string {
-  return DIRECCIONES[Math.round(grados / 45) % 8]
 }
 
 export function DatosDetalle({ actual }: Props) {

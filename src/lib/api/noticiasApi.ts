@@ -1,8 +1,12 @@
 export interface Noticia {
   id: string
+  categoria: string
   titular: string
+  extracto: string
   fuente: string
   publicadoHaceHoras: number
+  /** ISO 8601 real, para <time dateTime=...> — no solo el texto "il y a Nh". */
+  publicadoEn: string
 }
 
 export async function obtenerNoticias(ciudad: string): Promise<Noticia[]> {
