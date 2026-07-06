@@ -38,8 +38,10 @@ export function FondoDinamico({ foto, gradiente, tinte }: Props) {
         className="absolute inset-0 mix-blend-overlay transition-colors duration-1000 ease-out"
         style={{ backgroundColor: tinte }}
       />
-      {/* Scrim fijo del header: legibilidad del nav independiente del overlay dinámico de clima/hora. */}
+      {/* Scrims fijos: legibilidad del nav/índice/bloque de temperatura independiente del overlay dinámico de clima/hora. */}
       <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-black/55 to-transparent" />
+      <div className="absolute inset-y-0 left-0 hidden w-[33rem] bg-gradient-to-r from-black/82 via-black/64 via-40% to-transparent md:block" />
+      <div className="absolute inset-y-0 right-0 w-[32.5rem] bg-gradient-to-l from-black/82 via-black/64 via-40% to-transparent" />
     </div>
   )
 }

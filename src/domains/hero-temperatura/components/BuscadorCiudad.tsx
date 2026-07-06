@@ -14,11 +14,8 @@ export function BuscadorCiudad({ onSeleccionar }: Props) {
     : ciudades
 
   return (
-    <div className="relative mt-10 max-w-sm">
-      <div className="flex items-center gap-3 border-b border-atmos-bone/40 pb-2">
-        <span aria-hidden className="text-atmos-bone/70">
-          ⌕
-        </span>
+    <div className="relative mt-16 ml-auto max-w-sm">
+      <div className="flex items-center gap-3 border-b border-atmos-bone/40 pb-2 transition-colors duration-200 ease-out hover:border-atmos-bone/70 focus-within:border-atmos-gold">
         <input
           value={consulta}
           onChange={(evento) => {
@@ -30,6 +27,9 @@ export function BuscadorCiudad({ onSeleccionar }: Props) {
           placeholder="Rechercher une ville…"
           className="w-full bg-transparent font-sans text-atmos-bone placeholder:text-atmos-bone/50 outline-none"
         />
+        <span aria-hidden className="text-atmos-bone/70">
+          ⌕
+        </span>
       </div>
       {abierto && resultados.length > 0 && (
         <ul className="absolute mt-2 w-full max-h-64 overflow-auto bg-atmos-ink/90 backdrop-blur-sm">
@@ -42,7 +42,7 @@ export function BuscadorCiudad({ onSeleccionar }: Props) {
                   setConsulta('')
                   setAbierto(false)
                 }}
-                className="block w-full text-left px-4 py-2 font-sans text-atmos-bone hover:bg-atmos-bone/10"
+                className="block w-full text-left px-4 py-2 font-sans text-atmos-bone transition-colors duration-150 ease-out hover:bg-atmos-bone/10"
               >
                 {ciudad.nombre}, {ciudad.pais}
               </button>

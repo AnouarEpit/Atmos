@@ -12,6 +12,11 @@
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
+html {
+  /* Escala todo el sitio ~125%, equivalente al zoom de navegador que se aprobó visualmente — funciona porque el resto del sistema (Tailwind + los clamp() del hero) ya está en rem/em. */
+  font-size: 125%;
+}
+
 :root {
   color-scheme: light;
 

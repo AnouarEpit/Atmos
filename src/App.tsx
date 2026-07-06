@@ -4,7 +4,7 @@ import { HeroTemperatura } from './domains/hero-temperatura'
 import { Forecast } from './domains/forecast'
 import { DatosDetalle } from './domains/datos-detalle'
 import { Noticias } from './domains/noticias'
-import { ciudades, ciudadPorDefecto, type Ciudad } from './lib/data/ciudades'
+import { ciudadPorDefecto, type Ciudad } from './lib/data/ciudades'
 import { useClimaActual } from './shared/hooks/useClimaActual'
 import { useLenis } from './shared/hooks/useLenis'
 
@@ -16,7 +16,7 @@ export default function App() {
 
   return (
     <>
-      <Header ciudades={ciudades} ciudadActual={ciudadActual} onCambiarCiudad={setCiudadActual} />
+      <Header />
       <HeroTemperatura
         ciudad={ciudadActual}
         clima={clima}

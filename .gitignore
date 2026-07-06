@@ -17,6 +17,9 @@ server/.env
 # Capturas de QA visual (mock data + fotos placeholder, no representativas del resultado final)
 docs/capturas/
 
+# Metadata de Windows/WSL al copiar archivos desde un mount NTFS
+*:Zone.Identifier
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

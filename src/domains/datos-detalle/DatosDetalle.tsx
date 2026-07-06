@@ -1,4 +1,5 @@
 import type { ClimaActual } from '../../lib/api/tipos'
+import { nivelUV } from '../../lib/clima/formato'
 import { GridDato } from './components/GridDato'
 
 interface Props {
@@ -9,13 +10,6 @@ const DIRECCIONES = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO']
 
 function direccionViento(grados: number): string {
   return DIRECCIONES[Math.round(grados / 45) % 8]
-}
-
-function nivelUV(uvi: number): string {
-  if (uvi < 3) return 'Faible'
-  if (uvi < 6) return 'Modéré'
-  if (uvi < 8) return 'Élevé'
-  return 'Très élevé'
 }
 
 export function DatosDetalle({ actual }: Props) {
@@ -33,7 +27,7 @@ export function DatosDetalle({ actual }: Props) {
         <GridDato etiqueta="Humidité" valor={`${actual.humidity}%`} />
         <GridDato etiqueta="Pression" valor={`${actual.pressure} hPa`} />
       </div>
-      <p className="mt-10 font-mono text-[11px] text-atmos-slate/70">
+      <p className="mt-10 font-mono text-[0.6875rem] text-atmos-slate/70">
         Données météo :{' '}
         <a
           href="https://open-meteo.com"
