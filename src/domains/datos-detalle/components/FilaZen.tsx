@@ -11,13 +11,14 @@ interface Props {
 export function FilaZen({ etiqueta, valor, detalle, icono }: Props) {
   return (
     <div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-[0.4rem] whitespace-nowrap">
         {icono}
-        <p className="font-mono text-[0.625rem] uppercase tracking-wider text-atmos-slate">{etiqueta}</p>
+        <span className="font-display text-[1rem] font-semibold text-atmos-ink">{valor}</span>
       </div>
-      <p className="mt-1 whitespace-nowrap">
-        <span className="font-display text-2xl font-medium text-atmos-ink">{valor}</span>
-        {detalle && <span className="ml-1.5 font-sans text-sm text-atmos-slate">{detalle}</span>}
+      {/* ml-[1.65rem] = ancho icono (1.25rem) + gap (0.4rem): label queda alineado con el valor, no con el icono. */}
+      <p className="mt-1 ml-[1.65rem] font-mono text-[0.625rem] uppercase tracking-wider text-atmos-slate">
+        {etiqueta}
+        {detalle && <> · {detalle}</>}
       </p>
     </div>
   )

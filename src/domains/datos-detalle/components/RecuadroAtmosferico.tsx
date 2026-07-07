@@ -22,7 +22,7 @@ export function RecuadroAtmosferico() {
   const mostrarVideo = !reducirMovimiento
 
   return (
-    <div className="relative h-[13rem] w-[5.5rem] shrink-0 overflow-hidden rounded-[1.75rem] bg-atmos-slate">
+    <div className="relative h-[18rem] w-[clamp(9.45rem,38vw,12.2rem)] shrink-0 overflow-hidden rounded-[1.75rem] bg-atmos-slate">
       <div
         aria-hidden
         className={`absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(184,194,201,0.6),rgba(74,87,96,0.95)_70%)] transition-opacity duration-500 ${

@@ -4,6 +4,7 @@ import { GridDato } from './components/GridDato'
 import { IconoAnimado } from './components/IconoAnimado'
 import { RecuadroAtmosferico } from './components/RecuadroAtmosferico'
 import { FilaZen } from './components/FilaZen'
+import { SubrayadoAnimado } from './components/SubrayadoAnimado'
 
 interface Props {
   actual?: ClimaActual
@@ -14,8 +15,10 @@ export function DatosDetalle({ actual }: Props) {
 
   return (
     <section className="bg-atmos-bone px-6 md:px-10 py-16">
-      <h2 className="font-display text-[2rem] font-light text-atmos-ink text-center">Conditions actuelles</h2>
-      <p className="font-sans text-sm text-atmos-slate text-center mt-2 mb-10">
+      <h2 className="font-display text-[2rem] font-light text-atmos-ink text-center">
+        Conditions <SubrayadoAnimado />
+      </h2>
+      <p className="font-sans text-sm text-atmos-slate text-center mt-3 mb-10">
         Détails en temps réel pour aujourd'hui
       </p>
 
@@ -46,9 +49,9 @@ export function DatosDetalle({ actual }: Props) {
       </div>
 
       {/* Mobile: variante "Zen" — recuadro atmosférico + lista de datos */}
-      <div className="flex gap-5 md:hidden max-w-sm mx-auto">
+      <div className="flex gap-[1.4rem] md:hidden max-w-sm mx-auto">
         <RecuadroAtmosferico />
-        <div className="flex flex-1 flex-col justify-between py-1">
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-[1.2rem] py-1">
           <FilaZen
             etiqueta="UV"
             valor={String(Math.round(actual.uvi))}
