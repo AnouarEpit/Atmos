@@ -34,3 +34,5 @@ docs/capturas/
 *.njsproj
 *.sln
 *.sw?
+.vercel
+.env*

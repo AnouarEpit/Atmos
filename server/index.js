@@ -13,6 +13,11 @@ app.use('/api/clima', climaRouter)
 app.use('/api/noticias', noticiasRouter)
 app.use('/api/aire', aireRouter)
 
-app.listen(PORT, () => {
-  console.log(`Atmos backend escuchando en http://localhost:${PORT}`)
-})
+// En Vercel el handler se invoca por request (sin listen) — api/index.js importa `app` directo.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Atmos backend escuchando en http://localhost:${PORT}`)
+  })
+}
+
+export default app
