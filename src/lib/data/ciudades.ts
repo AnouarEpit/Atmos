@@ -6,6 +6,14 @@ export interface Ciudad {
   lon: number
   /** Ruta a la foto curada estática del signature element. */
   foto: string
+  /**
+   * object-position CSS para el recorte de `object-cover` — el landmark de
+   * varias fotos reales no está centrado horizontalmente (ej. la Torre Eiffel
+   * cae ~68% a la derecha en paris.jpg), y en un viewport angosto (mobile)
+   * el recorte por defecto ('center') lo pierde por completo. Por defecto
+   * 'center' si no se especifica.
+   */
+  posicionFoto?: string
 }
 
 /**
@@ -15,14 +23,14 @@ export interface Ciudad {
  * overlay dinámico (calor/desierto, nieve, niebla nórdica).
  */
 export const ciudades: Ciudad[] = [
-  { slug: 'paris', nombre: 'Paris', pais: 'France', lat: 48.8566, lon: 2.3522, foto: '/images/villes/paris.jpg' },
+  { slug: 'paris', nombre: 'Paris', pais: 'France', lat: 48.8566, lon: 2.3522, foto: '/images/villes/paris.jpg', posicionFoto: '75% center' },
   { slug: 'lyon', nombre: 'Lyon', pais: 'France', lat: 45.764, lon: 4.8357, foto: '/images/villes/lyon.jpg' },
   { slug: 'marseille', nombre: 'Marseille', pais: 'France', lat: 43.2965, lon: 5.3698, foto: '/images/villes/marseille.jpg' },
   { slug: 'bordeaux', nombre: 'Bordeaux', pais: 'France', lat: 44.8378, lon: -0.5792, foto: '/images/villes/bordeaux.jpg' },
   { slug: 'nice', nombre: 'Nice', pais: 'France', lat: 43.7102, lon: 7.262, foto: '/images/villes/nice.jpg' },
-  { slug: 'strasbourg', nombre: 'Strasbourg', pais: 'France', lat: 48.5734, lon: 7.7521, foto: '/images/villes/strasbourg.jpg' },
+  { slug: 'strasbourg', nombre: 'Strasbourg', pais: 'France', lat: 48.5734, lon: 7.7521, foto: '/images/villes/strasbourg.jpg', posicionFoto: '78% center' },
   { slug: 'londres', nombre: 'Londres', pais: 'Royaume-Uni', lat: 51.5074, lon: -0.1278, foto: '/images/villes/londres.jpg' },
-  { slug: 'berlin', nombre: 'Berlin', pais: 'Allemagne', lat: 52.52, lon: 13.405, foto: '/images/villes/berlin.jpg' },
+  { slug: 'berlin', nombre: 'Berlin', pais: 'Allemagne', lat: 52.52, lon: 13.405, foto: '/images/villes/berlin.jpg', posicionFoto: '85% center' },
   { slug: 'madrid', nombre: 'Madrid', pais: 'Espagne', lat: 40.4168, lon: -3.7038, foto: '/images/villes/madrid.svg' },
   { slug: 'rome', nombre: 'Rome', pais: 'Italie', lat: 41.9028, lon: 12.4964, foto: '/images/villes/rome.svg' },
   { slug: 'amsterdam', nombre: 'Amsterdam', pais: 'Pays-Bas', lat: 52.3676, lon: 4.9041, foto: '/images/villes/amsterdam.svg' },

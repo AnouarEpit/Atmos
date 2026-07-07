@@ -20,6 +20,10 @@ docs/capturas/
 # Metadata de Windows/WSL al copiar archivos desde un mount NTFS
 *:Zone.Identifier
 
+# Config local de Claude Code (no compartida) y worktrees temporales de agentes
+.claude/settings.local.json
+.claude/worktrees/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

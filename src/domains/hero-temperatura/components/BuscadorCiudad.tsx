@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { ciudades, type Ciudad } from '../../../lib/data/ciudades'
 
 interface Props {
@@ -8,57 +8,65 @@ interface Props {
 export function BuscadorCiudad({ onSeleccionar }: Props) {
   const [consulta, setConsulta] = useState('')
   const [abierto, setAbierto] = useState(false)
-  const cierreTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Evita que un timeout de un blur anterior (nunca cancelado) cierre un dropdown reabierto para otra búsqueda.
-  useEffect(() => () => {
-    if (cierreTimeoutRef.current) clearTimeout(cierreTimeoutRef.current)
-  }, [])
-
-  const resultados = consulta.trim()
-    ? ciudades.filter((ciudad) => ciudad.nombre.toLowerCase().includes(consulta.trim().toLowerCase()))
+  const consultaLimpia = consulta.trim()
+  const resultados = consultaLimpia
+    ? ciudades.filter((ciudad) => ciudad.nombre.toLowerCase().includes(consultaLimpia.toLowerCase()))
     : ciudades
+  // El set de ciudades es curado (fotos reales, no una API externa) — si la búsqueda no
+  // matchea ninguna, en vez de dejar el dropdown vacío en silencio, se avisa explícitamente
+  // y se ofrece la lista completa como alternativa.
+  const sinResultados = resultados.length === 0 && consultaLimpia.length > 0
+  const listaAMostrar = sinResultados ? ciudades : resultados
 
   return (
-    <div className="relative mt-16 ml-auto max-w-sm">
+    <div
+      className="relative mt-16 ml-auto max-w-sm"
+      onBlur={(evento) => {
+        // Cierra solo si el foco salió de TODO el widget (input + dropdown), no al moverse
+        // entre ellos con Tab — con el timeout anterior, tabular desde el input cerraba el
+        // dropdown antes de que el foco pudiera llegar a un resultado (inalcanzable por teclado).
+        if (!evento.currentTarget.contains(evento.relatedTarget)) {
+          setAbierto(false)
+        }
+      }}
+    >
       <div className="flex items-center gap-3 border-b border-atmos-bone/40 pb-2 transition-colors duration-200 ease-out hover:border-atmos-bone/70 focus-within:border-atmos-gold">
         <input
+          aria-label="Rechercher une ville"
           value={consulta}
           onChange={(evento) => {
             setConsulta(evento.target.value)
             setAbierto(true)
           }}
-          onFocus={() => {
-            if (cierreTimeoutRef.current) clearTimeout(cierreTimeoutRef.current)
-            setAbierto(true)
-          }}
-          onBlur={() => {
-            if (cierreTimeoutRef.current) clearTimeout(cierreTimeoutRef.current)
-            cierreTimeoutRef.current = setTimeout(() => setAbierto(false), 100)
-          }}
+          onFocus={() => setAbierto(true)}
           placeholder="Rechercher une ville…"
-          className="w-full bg-transparent font-sans text-atmos-bone placeholder:text-atmos-bone/50 outline-none"
+          className="w-full bg-transparent py-2 font-sans text-atmos-bone placeholder:text-atmos-bone/50 outline-none md:py-0"
         />
         <span aria-hidden className="text-atmos-bone/70">
           ⌕
         </span>
       </div>
-      {abierto && resultados.length > 0 && (
-        <ul className="absolute mt-2 w-full max-h-64 overflow-auto bg-atmos-ink/90 backdrop-blur-sm">
-          {resultados.map((ciudad) => (
+      {abierto && listaAMostrar.length > 0 && (
+        <ul
+          data-lenis-prevent
+          className="scrollbar-fina absolute inset-x-0 top-full mt-2 max-h-32 w-auto overflow-auto rounded-2xl border border-atmos-bone/10 bg-atmos-ink/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)] backdrop-blur-2xl md:inset-x-auto md:top-0 md:right-full md:mt-0 md:mr-3 md:max-h-72 md:w-64"
+        >
+          {sinResultados && (
+            <li className="border-b border-atmos-bone/10 px-4 py-3 font-sans text-xs text-atmos-bone/80 [text-shadow:0_1px_6px_rgba(0,0,0,0.6)]">
+              Aucun résultat pour « {consultaLimpia} » — parmi les villes disponibles :
+            </li>
+          )}
+          {listaAMostrar.map((ciudad) => (
             <li key={ciudad.slug}>
               <button
                 type="button"
-                onMouseDown={(evento) => {
-                  // mousedown se dispara antes que el blur del input — preventDefault evita
-                  // que el input pierda el foco y dispare el cierre del dropdown a mitad del clic.
-                  evento.preventDefault()
-                  if (cierreTimeoutRef.current) clearTimeout(cierreTimeoutRef.current)
+                onClick={() => {
                   onSeleccionar(ciudad)
                   setConsulta('')
                   setAbierto(false)
                 }}
-                className="block w-full text-left px-4 py-2 font-sans text-atmos-bone transition-colors duration-150 ease-out hover:bg-atmos-bone/10"
+                className="block w-full text-left px-5 py-3 font-sans text-base tracking-tight text-atmos-bone transition-colors duration-150 ease-out [text-shadow:0_1px_8px_rgba(0,0,0,0.7)] hover:bg-atmos-bone/10 focus-visible:bg-atmos-bone/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-atmos-gold"
               >
                 {ciudad.nombre}, {ciudad.pais}
               </button>

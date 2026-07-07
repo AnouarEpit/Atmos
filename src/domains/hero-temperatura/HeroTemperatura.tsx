@@ -1,11 +1,13 @@
+import { useRef } from 'react'
 import type { Ciudad } from '../../lib/data/ciudades'
 import type { RespuestaClima } from '../../lib/api/tipos'
 import { FondoDinamico } from './components/FondoDinamico'
 import { TemperaturaDisplay } from './components/TemperaturaDisplay'
 import { BuscadorCiudad } from './components/BuscadorCiudad'
-import { IndiceLateral } from './components/IndiceLateral'
+import { IndiceLateral, IndiceMobileInline } from './components/IndiceLateral'
 import { IndicadorScroll } from './components/IndicadorScroll'
 import { useOverlayPorHora } from './hooks/useOverlayPorHora'
+import { useEncogimientoScroll } from './hooks/useEncogimientoScroll'
 
 interface Props {
   ciudad: Ciudad
@@ -19,10 +21,12 @@ interface Props {
 export function HeroTemperatura({ ciudad, clima, cargando, error, onReintentar, onSeleccionarCiudad }: Props) {
   const idClima = clima?.current.weather[0]?.id ?? 800
   const overlay = useOverlayPorHora(idClima, clima?.timezone_offset ?? 0)
+  const seccionRef = useRef<HTMLElement>(null)
+  useEncogimientoScroll(seccionRef)
 
   return (
-    <section id="accueil" className="relative h-screen w-full overflow-hidden">
-      <FondoDinamico foto={ciudad.foto} gradiente={overlay.gradiente} tinte={overlay.tinte} />
+    <section ref={seccionRef} id="accueil" className="relative h-screen w-full overflow-hidden rounded-b-[3.5rem]">
+      <FondoDinamico foto={ciudad.foto} gradiente={overlay.gradiente} tinte={overlay.tinte} posicionFoto={ciudad.posicionFoto} />
 
       {clima && !error && <IndiceLateral actual={clima.current} />}
       <IndicadorScroll />
@@ -50,6 +54,11 @@ export function HeroTemperatura({ ciudad, clima, cargando, error, onReintentar, 
               pais={ciudad.pais}
               descripcion={clima.current.weather[0]?.description ?? ''}
             />
+          )}
+          {clima && !error && (
+            <div className="mt-6">
+              <IndiceMobileInline actual={clima.current} />
+            </div>
           )}
           <BuscadorCiudad onSeleccionar={onSeleccionarCiudad} />
         </div>

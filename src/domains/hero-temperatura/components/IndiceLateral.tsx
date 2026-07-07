@@ -5,13 +5,18 @@ interface Props {
   actual: ClimaActual
 }
 
-export function IndiceLateral({ actual }: Props) {
-  const items = [
+function calcularItems(actual: ClimaActual) {
+  return [
     { etiqueta: 'Ressenti', valor: `${Math.round(actual.feels_like)}°` },
     { etiqueta: 'Vent', valor: `${Math.round(actual.wind_speed * 3.6)} km/h` },
     { etiqueta: 'Humidité', valor: `${actual.humidity}%` },
     { etiqueta: 'UV', valor: nivelUV(actual.uvi) },
   ]
+}
+
+/** Desktop: columna vertical fija a la izquierda del hero. */
+export function IndiceLateral({ actual }: Props) {
+  const items = calcularItems(actual)
 
   return (
     <div className="absolute left-6 top-0 bottom-0 z-10 hidden flex-col justify-center gap-8 md:left-20 md:flex">
@@ -21,6 +26,32 @@ export function IndiceLateral({ actual }: Props) {
             {String(indice + 1).padStart(2, '0')} · {item.etiqueta}
           </p>
           <p className="mt-1.5 origin-left font-mono text-2xl text-atmos-bone transition-transform duration-200 ease-out group-hover:scale-105 [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
+            {item.valor}
+          </p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/**
+ * Mobile: fila horizontal compacta, en el flujo normal del contenido (no
+ * absoluta) entre la temperatura y el buscador — mismo max-w-sm/ml-auto que
+ * BuscadorCiudad para heredar su mismo ancho sin cálculos de píxeles frágiles.
+ * Deja todo el espacio debajo del buscador libre para que su dropdown pueda
+ * desplegarse sin superponerse a estos datos.
+ */
+export function IndiceMobileInline({ actual }: Props) {
+  const items = calcularItems(actual)
+
+  return (
+    <div className="ml-auto flex max-w-sm justify-between md:hidden">
+      {items.map((item) => (
+        <div key={item.etiqueta} className="text-center">
+          <p className="font-mono text-[0.5625rem] uppercase tracking-wide text-atmos-gold opacity-90 [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
+            {item.etiqueta}
+          </p>
+          <p className="mt-1 font-mono text-base text-atmos-bone [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
             {item.valor}
           </p>
         </div>

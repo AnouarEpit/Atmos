@@ -22,7 +22,7 @@ export function Noticias({ ciudad, clima }: Props) {
   const [destacada, ...resto] = data
 
   return (
-    <section id="actus" className="bg-atmos-bone px-6 md:px-10 py-16">
+    <section id="actus" className="rounded-t-[3.5rem] bg-atmos-sable px-6 md:px-10 py-16">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-baseline justify-between mb-10">
           <h2 className="font-display text-2xl text-atmos-ink">À la une</h2>

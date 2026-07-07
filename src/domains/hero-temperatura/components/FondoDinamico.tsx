@@ -11,9 +11,10 @@ interface Props {
   foto: string
   gradiente: Gradiente
   tinte: string
+  posicionFoto?: string
 }
 
-export function FondoDinamico({ foto, gradiente, tinte }: Props) {
+export function FondoDinamico({ foto, gradiente, tinte, posicionFoto = 'center' }: Props) {
   const contenedorRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -27,7 +28,13 @@ export function FondoDinamico({ foto, gradiente, tinte }: Props) {
 
   return (
     <div ref={contenedorRef} className="absolute inset-0 -z-10 overflow-hidden">
-      <img key={foto} src={foto} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      <img
+        key={foto}
+        src={foto}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ objectPosition: posicionFoto }}
+      />
       <div
         className="absolute inset-0 transition-[background-image] duration-1000 ease-out"
         style={{
