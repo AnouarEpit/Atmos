@@ -40,6 +40,12 @@ export function BuscadorCiudad({ onSeleccionar }: Props) {
             setAbierto(true)
           }}
           onFocus={() => setAbierto(true)}
+          // El pointerdown+preventDefault() de los ítems del dropdown evita que el input
+          // pierda foco al seleccionar (esquiva la carrera con blur) — pero eso significa
+          // que el input queda enfocado, así que un tap/click posterior no dispara onFocus
+          // de nuevo (el navegador solo lo dispara en una transición real de foco). onClick
+          // cubre ese caso: se dispara igual aunque el input ya estuviera enfocado.
+          onClick={() => setAbierto(true)}
           placeholder="Rechercher une ville…"
           className="w-full bg-transparent py-2 font-sans text-atmos-bone placeholder:text-atmos-bone/50 outline-none md:py-0"
         />
@@ -61,7 +67,20 @@ export function BuscadorCiudad({ onSeleccionar }: Props) {
             <li key={ciudad.slug}>
               <button
                 type="button"
+                onPointerDown={(evento) => {
+                  // iOS Safari/Chrome (WebKit): el blur del input en un tap a veces llega sin
+                  // relatedTarget seteado, así que el guard de abajo no detecta que el foco
+                  // se movió DENTRO del widget y cierra la lista antes de que el click llegue
+                  // a disparar. pointerdown ocurre antes que blur en cualquier navegador/input
+                  // (mouse o touch), así que la selección ya pasó para cuando blur reacciona.
+                  evento.preventDefault()
+                  onSeleccionar(ciudad)
+                  setConsulta('')
+                  setAbierto(false)
+                }}
                 onClick={() => {
+                  // Mantenido para activación por teclado (Enter/Espacio), que dispara click
+                  // directo sin pasar por pointerdown.
                   onSeleccionar(ciudad)
                   setConsulta('')
                   setAbierto(false)
