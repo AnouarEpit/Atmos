@@ -3,6 +3,7 @@ import type { ClimaDiario } from '../../lib/api/tipos'
 import { etiquetaFecha } from '../../lib/clima/formato'
 import { mapCondicion } from '../../lib/clima/condicion'
 import { IconoClima } from '../../shared/ui/IconoClima'
+import { useRevelarEnScroll } from '../../shared/hooks/useRevelarEnScroll'
 import { TarjetaDia, DIAS } from './components/TarjetaDia'
 import { SparklineSemana } from './components/SparklineSemana'
 
@@ -12,6 +13,9 @@ interface Props {
 
 export function Forecast({ dias }: Props) {
   const contenedorRef = useRef<HTMLDivElement>(null)
+  const revelarTitulo = useRevelarEnScroll<HTMLHeadingElement>({ y: 24, start: 'top 92%', end: 'top 68%' })
+  const revelarGrid = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%' })
+  const revelarMobile = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%' })
   const [indice, setIndice] = useState(0)
 
   if (!dias?.length) return null
@@ -29,12 +33,21 @@ export function Forecast({ dias }: Props) {
 
   return (
     <section id="previsions" className="bg-atmos-bone px-6 md:px-10 py-16">
-      <h2 className="font-display text-3xl font-light text-atmos-ink text-center mb-10 md:text-[2.625rem]">
+      <h2
+        ref={revelarTitulo}
+        className="font-display text-3xl font-light text-atmos-ink text-center mb-10 md:text-[2.625rem]"
+      >
         Prévisions 7 jours
       </h2>
 
       {/* Desktop: grid completo con la curva de temperaturas máximas de fondo */}
-      <div ref={contenedorRef} className="relative hidden md:flex md:flex-wrap md:justify-center md:gap-7">
+      <div
+        ref={(nodo) => {
+          contenedorRef.current = nodo
+          revelarGrid(nodo)
+        }}
+        className="relative hidden md:flex md:flex-wrap md:justify-center md:gap-7"
+      >
         <SparklineSemana contenedorRef={contenedorRef} valores={maximas} minimo={maximasMin} maximo={maximasMax} />
         {semana.map((dia, i) => (
           <TarjetaDia
@@ -51,7 +64,7 @@ export function Forecast({ dias }: Props) {
       </div>
 
       {/* Mobile: una sola tarjeta con pestañas de día + panel de detalle del día activo */}
-      <div className="md:hidden">
+      <div ref={revelarMobile} className="md:hidden">
         <div className="rounded-3xl bg-white p-6 shadow-[0_10px_32px_rgba(20,24,28,0.08),0_3px_8px_rgba(20,24,28,0.05)]">
           <div data-lenis-prevent className="scrollbar-fina flex gap-0.5 overflow-x-auto">
             {semana.map((dia, i) => (

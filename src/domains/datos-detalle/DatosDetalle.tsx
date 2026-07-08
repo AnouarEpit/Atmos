@@ -1,5 +1,6 @@
 import type { ClimaActual } from '../../lib/api/tipos'
 import { nivelUV, direccionViento } from '../../lib/clima/formato'
+import { useRevelarEnScroll } from '../../shared/hooks/useRevelarEnScroll'
 import { GridDato } from './components/GridDato'
 import { IconoAnimado } from './components/IconoAnimado'
 import { RecuadroAtmosferico } from './components/RecuadroAtmosferico'
@@ -11,19 +12,24 @@ interface Props {
 }
 
 export function DatosDetalle({ actual }: Props) {
+  const revelarTitulo = useRevelarEnScroll<HTMLHeadingElement>({ y: 24, start: 'top 92%', end: 'top 68%' })
+  const revelarSubtitulo = useRevelarEnScroll<HTMLParagraphElement>({ y: 20, start: 'top 90%', end: 'top 64%' })
+  const revelarGrid = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%' })
+  const revelarMobile = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%' })
+
   if (!actual) return null
 
   return (
     <section className="bg-atmos-bone px-6 md:px-10 py-16">
-      <h2 className="font-display text-[2rem] font-light text-atmos-ink text-center">
+      <h2 ref={revelarTitulo} className="font-display text-[2rem] font-light text-atmos-ink text-center">
         Conditions <SubrayadoAnimado />
       </h2>
-      <p className="font-sans text-sm text-atmos-slate text-center mt-3 mb-10">
+      <p ref={revelarSubtitulo} className="font-sans text-sm text-atmos-slate text-center mt-3 mb-10">
         Détails en temps réel pour aujourd'hui
       </p>
 
       {/* Desktop: grid 2x4 con iconos animados, sin cambios */}
-      <div className="hidden md:grid md:grid-cols-4 gap-8">
+      <div ref={revelarGrid} className="hidden md:grid md:grid-cols-4 gap-8">
         <GridDato
           etiqueta="UV"
           valor={String(Math.round(actual.uvi))}
@@ -49,7 +55,7 @@ export function DatosDetalle({ actual }: Props) {
       </div>
 
       {/* Mobile: variante "Zen" — recuadro atmosférico + lista de datos */}
-      <div className="flex gap-[1.4rem] md:hidden max-w-sm mx-auto">
+      <div ref={revelarMobile} className="flex gap-[1.4rem] md:hidden max-w-sm mx-auto">
         <RecuadroAtmosferico />
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-[1.2rem] py-1">
           <FilaZen
