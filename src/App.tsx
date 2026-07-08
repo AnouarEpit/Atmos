@@ -8,6 +8,7 @@ import { ciudadPorDefecto, type Ciudad } from './lib/data/ciudades'
 import { useClimaActual } from './shared/hooks/useClimaActual'
 import { useLenis } from './shared/hooks/useLenis'
 import { Preloader } from './shared/ui/Preloader'
+import { CursorPersonalizado } from './shared/ui/CursorPersonalizado'
 
 const prefiereReducirMovimiento = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -35,6 +36,7 @@ export default function App() {
       {preloaderActivo && (
         <Preloader listo={datosListos} onTerminado={() => setPreloaderActivo(false)} />
       )}
+      <CursorPersonalizado />
       <Header onSeleccionarCiudad={setCiudadActual} revelado={!preloaderActivo} />
       <HeroTemperatura
         ciudad={ciudadActual}

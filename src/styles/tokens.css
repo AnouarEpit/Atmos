@@ -131,3 +131,10 @@ body {
 .scrollbar-fina:hover::-webkit-scrollbar-thumb {
   background-color: rgba(244, 239, 230, 0.3);
 }
+
+/* Cursor custom (CursorPersonalizado) solo en desktop real — mouse físico, no touch/híbrido. */
+@media (hover: hover) and (pointer: fine) {
+  body {
+    cursor: none;
+  }
+}
