@@ -1,6 +1,5 @@
 import { mapCondicion, type Condicion } from '../../../lib/clima/condicion'
-
-type BucketHora = 'aube' | 'jour' | 'crepuscule' | 'nuit'
+import { bucketHoraLocal, type BucketHora } from '../../../lib/clima/horaLocal'
 
 interface Gradiente {
   stop1: string
@@ -30,15 +29,6 @@ const TINTES_CLIMA: Record<Condicion, string> = {
   tormenta: 'rgba(44,30,74,0.56)',
   nieve: 'rgba(196,212,224,0.30)',
   niebla: 'rgba(188,194,198,0.52)',
-}
-
-function bucketHoraLocal(timezoneOffsetSegundos: number): BucketHora {
-  const localMs = Date.now() + timezoneOffsetSegundos * 1000
-  const hora = new Date(localMs).getUTCHours()
-  if (hora >= 5 && hora < 7) return 'aube'
-  if (hora >= 7 && hora < 18) return 'jour'
-  if (hora >= 18 && hora < 20) return 'crepuscule'
-  return 'nuit'
 }
 
 export function useOverlayPorHora(idClima: number, timezoneOffsetSegundos: number) {

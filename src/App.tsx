@@ -47,7 +47,7 @@ export default function App() {
         revelado={!preloaderActivo}
       />
       <Forecast dias={clima?.daily} />
-      <DatosDetalle actual={clima?.current} />
+      <DatosDetalle actual={clima?.current} timezoneOffset={clima?.timezone_offset} />
       <Noticias ciudad={ciudadActual} clima={clima} />
     </>
   )
