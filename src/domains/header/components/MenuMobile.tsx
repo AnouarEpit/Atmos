@@ -37,8 +37,9 @@ export function MenuMobile({ abierto, onCerrar, enlaces, onSeleccionarCiudad }: 
   )
 
   useEffect(() => {
-    if (abierto) inputRef.current?.focus()
-    else setConsulta('')
+    // Sin autofocus: en mobile eso abre el teclado apenas se abre el menú,
+    // sin que el usuario haya tocado el input todavía.
+    if (!abierto) setConsulta('')
   }, [abierto, setConsulta])
 
   useEffect(() => {
