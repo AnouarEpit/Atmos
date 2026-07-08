@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ciudades, type Ciudad } from '../../../lib/data/ciudades'
 
 interface Props {
@@ -8,6 +8,25 @@ interface Props {
 export function BuscadorCiudad({ onSeleccionar }: Props) {
   const [consulta, setConsulta] = useState('')
   const [abierto, setAbierto] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Al elegir ciudad: cierra el teclado (blur — el pointerdown+preventDefault de los ítems
+  // evita que el input pierda foco solo, así que hay que forzarlo acá) y sube suave al tope
+  // del hero, para que el usuario vea el resultado sin tener que scrollear a mano.
+  //
+  // El salto instantáneo (en vez de scroll suave) que aparecía acá NO era un problema de
+  // animación — era que Forecast/DatosDetalle/Noticias se desmontaban un instante al cambiar
+  // de ciudad (queryKey nuevo sin placeholderData, `clima` pasaba por `undefined`), la página
+  // colapsaba al alto de un solo viewport y el navegador clampeaba scrollY a 0 él solo, antes
+  // de que este código llegara a animar nada. Fix real en useClimaActual.ts
+  // (placeholderData: keepPreviousData). Con eso arreglado, scroll nativo simple alcanza.
+  function seleccionarCiudad(ciudad: Ciudad) {
+    onSeleccionar(ciudad)
+    setConsulta('')
+    setAbierto(false)
+    inputRef.current?.blur()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const consultaLimpia = consulta.trim()
   const resultados = consultaLimpia
@@ -33,6 +52,7 @@ export function BuscadorCiudad({ onSeleccionar }: Props) {
     >
       <div className="flex items-center gap-3 border-b border-atmos-bone/40 pb-2 transition-colors duration-200 ease-out hover:border-atmos-bone/70 focus-within:border-atmos-gold">
         <input
+          ref={inputRef}
           aria-label="Rechercher une ville"
           value={consulta}
           onChange={(evento) => {
@@ -74,16 +94,12 @@ export function BuscadorCiudad({ onSeleccionar }: Props) {
                   // a disparar. pointerdown ocurre antes que blur en cualquier navegador/input
                   // (mouse o touch), así que la selección ya pasó para cuando blur reacciona.
                   evento.preventDefault()
-                  onSeleccionar(ciudad)
-                  setConsulta('')
-                  setAbierto(false)
+                  seleccionarCiudad(ciudad)
                 }}
                 onClick={() => {
                   // Mantenido para activación por teclado (Enter/Espacio), que dispara click
                   // directo sin pasar por pointerdown.
-                  onSeleccionar(ciudad)
-                  setConsulta('')
-                  setAbierto(false)
+                  seleccionarCiudad(ciudad)
                 }}
                 className="block w-full text-left px-5 py-3 font-sans text-base tracking-tight text-atmos-bone transition-colors duration-150 ease-out [text-shadow:0_1px_8px_rgba(0,0,0,0.7)] hover:bg-atmos-bone/10 focus-visible:bg-atmos-bone/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-atmos-gold"
               >
