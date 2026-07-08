@@ -60,17 +60,17 @@ function OndasViento({ className }: { className?: string }) {
   const comun = { strokeWidth: 2, strokeLinecap: 'round' as const, strokeDasharray: '14 10' }
   return (
     <svg viewBox="0 0 300 64" preserveAspectRatio="none" className={className} fill="none" stroke="currentColor">
-      <path d={onda(16)} {...comun} className="animate-[atmos-viento-flujo_3.2s_linear_infinite,atmos-pulso-opacidad_3.2s_ease-in-out_infinite]" />
+      <path d={onda(16)} {...comun} className="motion-safe:animate-[atmos-viento-flujo_3.2s_linear_infinite,atmos-pulso-opacidad_3.2s_ease-in-out_infinite]" />
       <path
         d={onda(32)}
         {...comun}
-        className="animate-[atmos-viento-flujo_2.6s_linear_infinite,atmos-pulso-opacidad_2.6s_ease-in-out_infinite]"
+        className="motion-safe:animate-[atmos-viento-flujo_2.6s_linear_infinite,atmos-pulso-opacidad_2.6s_ease-in-out_infinite]"
         style={{ animationDelay: '0.4s, 0.4s' }}
       />
       <path
         d={onda(48)}
         {...comun}
-        className="animate-[atmos-viento-flujo_3.8s_linear_infinite,atmos-pulso-opacidad_3.8s_ease-in-out_infinite]"
+        className="motion-safe:animate-[atmos-viento-flujo_3.8s_linear_infinite,atmos-pulso-opacidad_3.8s_ease-in-out_infinite]"
         style={{ animationDelay: '0.8s, 0.8s' }}
       />
     </svg>
@@ -141,7 +141,7 @@ export function ResumenCiudad({ ciudad, clima }: Props) {
   const vientoKmh = Math.round(current.wind_speed * 3.6)
 
   return (
-    <aside className="rounded-2xl bg-white p-9 shadow-[0_10px_32px_rgba(20,24,28,0.06),0_3px_8px_rgba(20,24,28,0.04)]">
+    <aside className="rounded-2xl bg-white p-6 md:p-9 shadow-[0_10px_32px_rgba(20,24,28,0.06),0_3px_8px_rgba(20,24,28,0.04)]">
       {/* A — encabezado + temperatura */}
       <p className="font-mono text-[0.8125rem] uppercase tracking-wider text-atmos-slate">
         Aujourd'hui à {ciudad.nombre}
@@ -161,7 +161,7 @@ export function ResumenCiudad({ ciudad, clima }: Props) {
       <div className="h-px bg-atmos-slate/20 my-6" />
 
       {/* B — fila compacta de consulta rápida */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-2">
         <ItemCompacto
           icono={<IconoSolMedio lado="lever" className="h-4 w-4 text-atmos-gold" />}
           etiqueta="Lever"
@@ -198,7 +198,7 @@ export function ResumenCiudad({ ciudad, clima }: Props) {
       <div className="flex items-center gap-4">
         <IconoLuna
           cicloFraccion={fase.cicloFraccion}
-          className="h-[3.25rem] w-[3.25rem] text-atmos-slate shrink-0 animate-[atmos-pulso-opacidad-sutil_4s_ease-in-out_infinite]"
+          className="h-[3.25rem] w-[3.25rem] text-atmos-slate shrink-0 motion-safe:animate-[atmos-pulso-opacidad-sutil_4s_ease-in-out_infinite]"
         />
         <p className="font-display text-[1.375rem] font-normal text-atmos-ink">{fase.nombre}</p>
       </div>
