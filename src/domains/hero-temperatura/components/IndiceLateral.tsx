@@ -3,6 +3,20 @@ import { nivelUV } from '../../../lib/clima/formato'
 
 interface Props {
   actual: ClimaActual
+  /** Fade-in escalonado tras el Preloader. Va en la propia raíz `absolute` (no en un wrapper: `transform` en un wrapper crearía un containing block nuevo y rompería el posicionamiento). */
+  revelado?: boolean
+}
+
+const EASE_REVELADO = 'cubic-bezier(0.16, 1, 0.3, 1)'
+
+function estiloRevelado(revelado?: boolean) {
+  if (revelado === undefined) return undefined
+  return {
+    opacity: revelado ? 1 : 0,
+    transform: revelado ? 'translateY(0)' : 'translateY(14px)',
+    transition: `opacity 900ms ${EASE_REVELADO}, transform 900ms ${EASE_REVELADO}`,
+    transitionDelay: '250ms',
+  }
 }
 
 function calcularItems(actual: ClimaActual) {
@@ -15,11 +29,14 @@ function calcularItems(actual: ClimaActual) {
 }
 
 /** Desktop: columna vertical fija a la izquierda del hero. */
-export function IndiceLateral({ actual }: Props) {
+export function IndiceLateral({ actual, revelado }: Props) {
   const items = calcularItems(actual)
 
   return (
-    <div className="absolute left-6 top-0 bottom-0 z-10 hidden flex-col justify-center gap-8 md:left-20 md:flex">
+    <div
+      className="absolute left-6 top-0 bottom-0 z-10 hidden flex-col justify-center gap-8 md:left-20 md:flex"
+      style={estiloRevelado(revelado)}
+    >
       {items.map((item, indice) => (
         <div key={item.etiqueta} className="group">
           <p className="font-mono text-[0.625rem] tracking-wide text-atmos-gold opacity-80 transition-opacity duration-200 ease-out group-hover:opacity-100 [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">

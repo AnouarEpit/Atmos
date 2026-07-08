@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Radio del agujero circular del Preloader (iris) — registrado como <percentage> para que la transición lo interpole el compositor, no JS por frame. */
+@property --radio-iris {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
 @theme {
   --color-atmos-ink: #14181c;
   --color-atmos-bone: #f4efe6;
@@ -20,6 +27,12 @@
 html {
   /* Escala todo el sitio ~125%, equivalente al zoom de navegador que se aprobó visualmente — funciona porque el resto del sistema (Tailwind + los clamp() del hero) ya está en rem/em. */
   font-size: 125%;
+  /* Oculta la scrollbar nativa (Lenis ya maneja el input de scroll, no hace falta el track del navegador). */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar {
+  display: none;
 }
 
 :root {

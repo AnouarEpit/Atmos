@@ -11,15 +11,25 @@ const ENLACES = [
 
 interface Props {
   onSeleccionarCiudad: (ciudad: Ciudad) => void
+  /** Gatea el fade-in del header — false mientras el Preloader todavía tapa la pantalla. */
+  revelado: boolean
 }
 
-export function Header({ onSeleccionarCiudad }: Props) {
+export function Header({ onSeleccionarCiudad, revelado }: Props) {
   const [menuAbierto, setMenuAbierto] = useState(false)
   const [busquedaAbierta, setBusquedaAbierta] = useState(false)
 
   return (
     <header className="absolute inset-x-0 top-0 z-20 text-atmos-bone">
-      <div className="flex items-center justify-between px-6 md:px-10 py-6">
+      <div
+        className="flex items-center justify-between px-6 md:px-10 py-6"
+        style={{
+          opacity: revelado ? 1 : 0,
+          transform: revelado ? 'translateY(0)' : 'translateY(-10px)',
+          transition: 'opacity 800ms cubic-bezier(0.16, 1, 0.3, 1), transform 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+          transitionDelay: '350ms',
+        }}
+      >
         <span className="font-display text-lg tracking-wide">ATMOS</span>
 
         <div className="flex items-center gap-6 font-sans text-sm">

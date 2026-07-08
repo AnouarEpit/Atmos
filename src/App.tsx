@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Header } from './domains/header'
 import { HeroTemperatura } from './domains/hero-temperatura'
 import { Forecast } from './domains/forecast'
@@ -7,6 +7,10 @@ import { Noticias } from './domains/noticias'
 import { ciudadPorDefecto, type Ciudad } from './lib/data/ciudades'
 import { useClimaActual } from './shared/hooks/useClimaActual'
 import { useLenis } from './shared/hooks/useLenis'
+import { Preloader } from './shared/ui/Preloader'
+
+const prefiereReducirMovimiento = () =>
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export default function App() {
   useLenis()
@@ -14,15 +18,31 @@ export default function App() {
   const [ciudadActual, setCiudadActual] = useState<Ciudad>(ciudadPorDefecto)
   const { data: clima, isLoading, isError, refetch } = useClimaActual(ciudadActual.lat, ciudadActual.lon)
 
+  const [preloaderActivo, setPreloaderActivo] = useState(() => !prefiereReducirMovimiento())
+  const [datosListos, setDatosListos] = useState(false)
+
+  useEffect(() => {
+    if (!isLoading || isError) {
+      setDatosListos(true)
+      return
+    }
+    const seguridad = setTimeout(() => setDatosListos(true), 6000)
+    return () => clearTimeout(seguridad)
+  }, [isLoading, isError])
+
   return (
     <>
-      <Header onSeleccionarCiudad={setCiudadActual} />
+      {preloaderActivo && (
+        <Preloader listo={datosListos} onTerminado={() => setPreloaderActivo(false)} />
+      )}
+      <Header onSeleccionarCiudad={setCiudadActual} revelado={!preloaderActivo} />
       <HeroTemperatura
         ciudad={ciudadActual}
         clima={clima}
         cargando={isLoading}
         error={isError}
         onReintentar={refetch}
+        revelado={!preloaderActivo}
       />
       <Forecast dias={clima?.daily} />
       <DatosDetalle actual={clima?.current} />

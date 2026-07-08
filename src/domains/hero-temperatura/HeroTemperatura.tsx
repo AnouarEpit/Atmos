@@ -14,9 +14,22 @@ interface Props {
   cargando: boolean
   error: boolean
   onReintentar: () => void
+  /** Gatea el fade-in escalonado del texto/UI del hero — false mientras el Preloader todavía tapa la pantalla. */
+  revelado: boolean
 }
 
-export function HeroTemperatura({ ciudad, clima, cargando, error, onReintentar }: Props) {
+const EASE_REVELADO = 'cubic-bezier(0.16, 1, 0.3, 1)'
+
+function estiloRevelado(revelado: boolean, delayMs: number, duracionMs = 900) {
+  return {
+    opacity: revelado ? 1 : 0,
+    transform: revelado ? 'translateY(0)' : 'translateY(14px)',
+    transition: `opacity ${duracionMs}ms ${EASE_REVELADO}, transform ${duracionMs}ms ${EASE_REVELADO}`,
+    transitionDelay: `${delayMs}ms`,
+  }
+}
+
+export function HeroTemperatura({ ciudad, clima, cargando, error, onReintentar, revelado }: Props) {
   const idClima = clima?.current.weather[0]?.id ?? 800
   const overlay = useOverlayPorHora(idClima, clima?.timezone_offset ?? 0)
   const seccionRef = useRef<HTMLElement>(null)
@@ -26,11 +39,11 @@ export function HeroTemperatura({ ciudad, clima, cargando, error, onReintentar }
     <section ref={seccionRef} id="accueil" className="relative h-screen w-full overflow-hidden rounded-b-[3.5rem]">
       <FondoDinamico foto={ciudad.foto} gradiente={overlay.gradiente} tinte={overlay.tinte} posicionFoto={ciudad.posicionFoto} />
 
-      {clima && !error && <IndiceLateral actual={clima.current} />}
-      <IndicadorScroll />
+      {clima && !error && <IndiceLateral actual={clima.current} revelado={revelado} />}
+      <IndicadorScroll revelado={revelado} />
 
       <div className="pointer-events-none relative z-10 flex h-full items-center justify-end px-6 md:px-10 lg:pr-[5.5rem]">
-        <div className="pointer-events-auto text-right">
+        <div className="pointer-events-auto text-right" style={estiloRevelado(revelado, 0)}>
           {error ? (
             <div className="text-atmos-bone">
               <p className="font-display text-2xl">Impossible de charger la météo de {ciudad.nombre}.</p>
