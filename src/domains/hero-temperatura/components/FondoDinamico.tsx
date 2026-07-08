@@ -49,6 +49,17 @@ export function FondoDinamico({ foto, gradiente, tinte, posicionFoto = 'center' 
       <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-black/55 to-transparent" />
       <div className="absolute inset-y-0 left-0 hidden w-[33rem] bg-gradient-to-r from-black/90 via-black/75 via-40% to-transparent md:block" />
       <div className="absolute inset-y-0 right-0 w-[32.5rem] bg-gradient-to-l from-black/90 via-black/75 via-40% to-transparent" />
+
+      {/* Grano fotográfico sutil (textura "niebla" del diseño original) — feTurbulence SVG tileado, mix-blend-overlay a opacidad baja, le da profundidad de foto real en vez de plano/digital. Estático, no animado (dial MOTION 4/10). */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          backgroundSize: '120px 120px',
+        }}
+      />
     </div>
   )
 }
