@@ -54,6 +54,31 @@ function aUnixFecha(fechaIso) {
   return Math.floor(Date.parse(fechaIso) / 1000)
 }
 
+/**
+ * Temperatura actual de varias ciudades en una sola llamada — Open-Meteo acepta
+ * latitude/longitude como listas separadas por coma y devuelve un array de
+ * resultados en el mismo orden. Usado por el buscador (overlay/menú) para
+ * mostrar "18°" junto a cada resultado sin una request por ciudad.
+ */
+export async function obtenerTemperaturasLote(coordenadas) {
+  const params = new URLSearchParams({
+    latitude: coordenadas.map((c) => c.lat).join(','),
+    longitude: coordenadas.map((c) => c.lon).join(','),
+    current: 'temperature_2m',
+    timezone: 'auto',
+  })
+
+  const respuesta = await fetch(`${BASE_URL}?${params}`)
+
+  if (!respuesta.ok) {
+    const detalle = await respuesta.text()
+    throw new Error(`Open-Meteo respondió ${respuesta.status}: ${detalle}`)
+  }
+
+  const datos = await respuesta.json()
+  return datos.map((d) => Math.round(d.current.temperature_2m))
+}
+
 export async function obtenerClima(lat, lon) {
   const params = new URLSearchParams({
     latitude: lat,

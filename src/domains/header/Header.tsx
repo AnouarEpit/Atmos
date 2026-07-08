@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import type { Ciudad } from '../../lib/data/ciudades'
+import { OverlayBusqueda } from './components/OverlayBusqueda'
+import { MenuMobile } from './components/MenuMobile'
 
 const ENLACES = [
   { href: '#accueil', label: 'Accueil' },
@@ -6,8 +9,13 @@ const ENLACES = [
   { href: '#actus', label: 'Actus' },
 ]
 
-export function Header() {
+interface Props {
+  onSeleccionarCiudad: (ciudad: Ciudad) => void
+}
+
+export function Header({ onSeleccionarCiudad }: Props) {
   const [menuAbierto, setMenuAbierto] = useState(false)
+  const [busquedaAbierta, setBusquedaAbierta] = useState(false)
 
   return (
     <header className="absolute inset-x-0 top-0 z-20 text-atmos-bone">
@@ -26,6 +34,17 @@ export function Header() {
               </a>
             ))}
           </nav>
+          <button
+            type="button"
+            onClick={() => setBusquedaAbierta(true)}
+            aria-label="Rechercher une ville"
+            className="hidden rounded-sm p-1 transition-colors duration-200 ease-out hover:text-atmos-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atmos-gold md:block"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" />
+            </svg>
+          </button>
           <span aria-hidden className="hidden h-4 w-px bg-atmos-bone/30 md:block" />
           <span className="opacity-60">FR</span>
           <button
@@ -42,20 +61,18 @@ export function Header() {
         </div>
       </div>
 
-      {menuAbierto && (
-        <nav className="mx-6 mt-1 rounded-2xl border border-atmos-bone/15 bg-atmos-ink/70 shadow-[0_16px_32px_rgba(0,0,0,0.25)] backdrop-blur-xl md:hidden">
-          {ENLACES.map((enlace) => (
-            <a
-              key={enlace.href}
-              href={enlace.href}
-              onClick={() => setMenuAbierto(false)}
-              className="block border-b border-atmos-bone/10 px-5 py-3.5 font-sans text-base transition-colors duration-150 ease-out last:border-b-0 hover:bg-atmos-bone/10 focus-visible:bg-atmos-bone/10 focus-visible:outline-none"
-            >
-              {enlace.label}
-            </a>
-          ))}
-        </nav>
-      )}
+      <MenuMobile
+        abierto={menuAbierto}
+        onCerrar={() => setMenuAbierto(false)}
+        enlaces={ENLACES}
+        onSeleccionarCiudad={onSeleccionarCiudad}
+      />
+
+      <OverlayBusqueda
+        abierto={busquedaAbierta}
+        onCerrar={() => setBusquedaAbierta(false)}
+        onSeleccionarCiudad={onSeleccionarCiudad}
+      />
     </header>
   )
 }

@@ -3,7 +3,6 @@ import type { Ciudad } from '../../lib/data/ciudades'
 import type { RespuestaClima } from '../../lib/api/tipos'
 import { FondoDinamico } from './components/FondoDinamico'
 import { TemperaturaDisplay } from './components/TemperaturaDisplay'
-import { BuscadorCiudad } from './components/BuscadorCiudad'
 import { IndiceLateral, IndiceMobileInline } from './components/IndiceLateral'
 import { IndicadorScroll } from './components/IndicadorScroll'
 import { useOverlayPorHora } from './hooks/useOverlayPorHora'
@@ -15,10 +14,9 @@ interface Props {
   cargando: boolean
   error: boolean
   onReintentar: () => void
-  onSeleccionarCiudad: (ciudad: Ciudad) => void
 }
 
-export function HeroTemperatura({ ciudad, clima, cargando, error, onReintentar, onSeleccionarCiudad }: Props) {
+export function HeroTemperatura({ ciudad, clima, cargando, error, onReintentar }: Props) {
   const idClima = clima?.current.weather[0]?.id ?? 800
   const overlay = useOverlayPorHora(idClima, clima?.timezone_offset ?? 0)
   const seccionRef = useRef<HTMLElement>(null)
@@ -60,7 +58,6 @@ export function HeroTemperatura({ ciudad, clima, cargando, error, onReintentar, 
               <IndiceMobileInline actual={clima.current} />
             </div>
           )}
-          <BuscadorCiudad onSeleccionar={onSeleccionarCiudad} />
         </div>
       </div>
     </section>

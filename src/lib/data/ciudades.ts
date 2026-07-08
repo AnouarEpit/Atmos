@@ -48,3 +48,8 @@ export const ciudadPorSlug = (slug: string): Ciudad | undefined =>
   ciudades.find((c) => c.slug === slug)
 
 export const ciudadPorDefecto = ciudades[0]
+
+/** Atajos "villes populaires" en el menú mobile — subset fijo, no depende de récentes del usuario. */
+export const ciudadesPopulares: Ciudad[] = ['paris', 'lyon', 'marrakech']
+  .map((slug) => ciudadPorSlug(slug))
+  .filter((c): c is Ciudad => c !== undefined)

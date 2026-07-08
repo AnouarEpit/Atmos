@@ -16,14 +16,13 @@ export default function App() {
 
   return (
     <>
-      <Header />
+      <Header onSeleccionarCiudad={setCiudadActual} />
       <HeroTemperatura
         ciudad={ciudadActual}
         clima={clima}
         cargando={isLoading}
         error={isError}
         onReintentar={refetch}
-        onSeleccionarCiudad={setCiudadActual}
       />
       <Forecast dias={clima?.daily} />
       <DatosDetalle actual={clima?.current} />

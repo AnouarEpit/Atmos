@@ -36,10 +36,8 @@ export function IndiceLateral({ actual }: Props) {
 
 /**
  * Mobile: fila horizontal compacta, en el flujo normal del contenido (no
- * absoluta) entre la temperatura y el buscador — mismo max-w-sm/ml-auto que
- * BuscadorCiudad para heredar su mismo ancho sin cálculos de píxeles frágiles.
- * Deja todo el espacio debajo del buscador libre para que su dropdown pueda
- * desplegarse sin superponerse a estos datos.
+ * absoluta), debajo de la temperatura — max-w-sm/ml-auto alineado con el
+ * resto del bloque de temperatura a la derecha.
  */
 export function IndiceMobileInline({ actual }: Props) {
   const items = calcularItems(actual)
