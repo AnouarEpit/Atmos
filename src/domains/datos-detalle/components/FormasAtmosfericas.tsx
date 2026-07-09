@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+import gsap from 'gsap'
 import { useRevelarEnScroll } from '../../../shared/hooks/useRevelarEnScroll'
 
 /**
@@ -9,7 +11,7 @@ import { useRevelarEnScroll } from '../../../shared/hooks/useRevelarEnScroll'
 function Flor({ x, y, r = 2.1 }: { x: number; y: number; r?: number }) {
   const petalos = [0, 72, 144, 216, 288]
   return (
-    <g>
+    <g data-flor style={{ transformBox: 'fill-box', transformOrigin: '50% 50%' }}>
       {petalos.map((deg) => {
         const rad = (deg * Math.PI) / 180
         const cx = x + Math.cos(rad) * r * 0.75
@@ -42,22 +44,63 @@ function Flor({ x, y, r = 2.1 }: { x: number; y: number; r?: number }) {
  * de una referencia real, con la advertencia de que introduce un color
  * (terracota) que antes solo vivía en el semáforo de calidad de aire.
  */
-function Rama({ className }: { className?: string }) {
+/**
+ * Tronco + brotes se dibujan progresivamente (stroke-dashoffset, técnica ya
+ * usada en `SubrayadoAnimado`) y las flores aparecen después con un pop
+ * (opacity+scale, `transformBox:'fill-box'` para que cada una escale desde
+ * su propio centro, no desde 0,0 del viewBox) — todo scrub-scrolleado
+ * (mismo trigger/start/end que recibe el contenedor desde `FormasAtmosfericas`).
+ * GSAP (no CSS transition) porque acá sí hace falta timeline con stagger
+ * entre 13 elementos (7 trazos + 6 flores) — y al ser `scrub` (no duración
+ * fija) no aplica el bug de `lagSmoothing(0)` documentado en
+ * `SubrayadoAnimado` (ese solo salta tweens de duración fija).
+ */
+function Rama({ className, start, end }: { className?: string; start: string; end: string }) {
+  const svgRef = useCallback(
+    (svg: SVGSVGElement | null) => {
+      if (!svg) return
+      const tronco = svg.querySelectorAll<SVGPathElement>('[data-tronco]')
+      const flores = svg.querySelectorAll<SVGGElement>('[data-flor]')
+      gsap.set(tronco, { strokeDasharray: 1, strokeDashoffset: 1 })
+      gsap.set(flores, { opacity: 0, scale: 0 })
+
+      const tl = gsap.timeline({ scrollTrigger: { trigger: svg, start, end, scrub: 0.9 } })
+      tl.to(tronco, { strokeDashoffset: 0, ease: 'none', duration: 1.6, stagger: 0.2 })
+      tl.to(flores, { opacity: 1, scale: 1, ease: 'sine.out', duration: 1, stagger: 0.18 }, '-=0.7')
+
+      return () => {
+        tl.scrollTrigger?.kill()
+        tl.kill()
+      }
+    },
+    [start, end],
+  )
+
   return (
-    <svg viewBox="0 0 40 40" fill="none" strokeLinecap="round" strokeLinejoin="round" className={`fill-none stroke-atmos-ink ${className ?? ''}`}>
-      <path d="M2,38 C6,33 5,28 10,24" strokeWidth={2.6} />
-      <path d="M10,24 C13,21 10,18 15,14" strokeWidth={1.9} />
-      <path d="M15,14 C18,11 15,8 20,4" strokeWidth={1.3} />
-      <path d="M6,30 C4,27 2,25 1,22" strokeWidth={1.1} />
-      <path d="M11,21 C15,20 18,22 23,19" strokeWidth={1.2} />
-      <path d="M18,22 C20,21 22,23 24,21" strokeWidth={0.8} />
-      <path d="M16,11 C19,10 21,12 25,9" strokeWidth={0.9} />
-      <Flor x={6} y={30} r={1.8} />
-      <Flor x={10} y={24} r={2} />
-      <Flor x={23} y={19} r={1.9} />
-      <Flor x={25} y={9} r={1.6} />
-      <Flor x={20} y={4} r={2.1} />
-      <Flor x={15} y={14} r={1.5} />
+    <svg
+      ref={svgRef}
+      viewBox="0 0 64 32"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`fill-none stroke-atmos-ink ${className ?? ''}`}
+    >
+      {/* Misma silueta de antes, reescalada (x1.6, y0.8) a una caja ancha y baja
+          en vez de cuadrada — así el contenedor puede ser bajo (evita que la
+          rama baje hasta la fila del título) sin perder proporción ni recortar. */}
+      <path data-tronco pathLength={1} d="M3.2,30.4 C9.6,26.4 8,22.4 16,19.2" strokeWidth={2.6} />
+      <path data-tronco pathLength={1} d="M16,19.2 C20.8,16.8 16,14.4 24,11.2" strokeWidth={1.9} />
+      <path data-tronco pathLength={1} d="M24,11.2 C28.8,8.8 24,6.4 32,3.2" strokeWidth={1.3} />
+      <path data-tronco pathLength={1} d="M9.6,24 C6.4,21.6 3.2,20 1.6,17.6" strokeWidth={1.1} />
+      <path data-tronco pathLength={1} d="M17.6,16.8 C24,16 28.8,17.6 36.8,15.2" strokeWidth={1.2} />
+      <path data-tronco pathLength={1} d="M28.8,17.6 C32,16.8 35.2,18.4 38.4,16.8" strokeWidth={0.8} />
+      <path data-tronco pathLength={1} d="M25.6,8.8 C30.4,8 33.6,9.6 40,7.2" strokeWidth={0.9} />
+      <Flor x={9.6} y={24} r={1.8} />
+      <Flor x={16} y={19.2} r={2} />
+      <Flor x={36.8} y={15.2} r={1.9} />
+      <Flor x={40} y={7.2} r={1.6} />
+      <Flor x={32} y={3.2} r={2.1} />
+      <Flor x={24} y={11.2} r={1.5} />
     </svg>
   )
 }
@@ -78,17 +121,29 @@ function Rama({ className }: { className?: string }) {
 export function FormasAtmosfericas() {
   const revelarGold = useRevelarEnScroll<HTMLDivElement>({ y: 16, scale: 0.35, start: 'top 95%', end: 'top 45%' })
   const revelarSlate = useRevelarEnScroll<HTMLDivElement>({ y: -16, start: 'top 88%', end: 'top 50%' })
-  const revelarRamaSup = useRevelarEnScroll<HTMLDivElement>({ y: -12, start: 'top 90%', end: 'top 55%' })
-  const revelarRamaInf = useRevelarEnScroll<HTMLDivElement>({ y: 12, start: 'top 88%', end: 'top 50%' })
+  // Contenedor: fade+translate de entrada nomás. El "crecimiento" real ahora lo da
+  // el trazo dibujándose + flores apareciendo dentro de <Rama> (mismo start/end,
+  // pasado como prop para que ambos efectos queden sincronizados).
+  // Rango bien más largo que el resto de reveals (75-90% del viewport en vez de ~35%)
+  // para que el dibujo del trazo + aparición de flores se sienta gradual y no apurado.
+  const RAMA_SUP = { start: 'top 95%', end: 'top 20%' }
+  const RAMA_INF = { start: 'top 92%', end: 'top 20%' }
+  const RAMA_MOBILE_SUP = { start: 'top 95%', end: 'top 30%' }
+  const RAMA_MOBILE_INF = { start: 'top 92%', end: 'top 30%' }
+  const revelarRamaSup = useRevelarEnScroll<HTMLDivElement>({ y: -12, ...RAMA_SUP })
+  const revelarRamaInf = useRevelarEnScroll<HTMLDivElement>({ y: 12, ...RAMA_INF })
+  // Mobile: ramas propias, más chicas, ancladas cerca del título (centrado, esquinas
+  // libres) y de la atribución (también centrada) — no reusar posición/tamaño desktop,
+  // huecos vacíos son otros en mobile (sin panel flotante, contenido casi full-width).
+  const revelarRamaMobileSup = useRevelarEnScroll<HTMLDivElement>({ y: -10, ...RAMA_MOBILE_SUP })
+  const revelarRamaMobileInf = useRevelarEnScroll<HTMLDivElement>({ y: 10, ...RAMA_MOBILE_INF })
 
   return (
-    // Bug real encontrado antes de esto: `overflow-x-hidden` (solo un eje en "hidden") fuerza
-    // por regla CSS al otro eje a computarse como `auto` — que igual recorta visualmente. El
-    // "sangrado" de la ronda anterior en realidad seguía cortado en el borde exacto de la
-    // sección, por eso el usuario seguía viendo la línea. Fix real: `overflow-x-clip` en vez de
-    // `overflow-x-hidden` — `clip` es el único valor que NO dispara ese quirk (spec: solo valores
-    // "distintos de visible o clip" fuerzan al otro eje), así que overflow-y queda genuinamente
-    // visible y las nubes sangran de verdad hacia Forecast/Noticias sin ningún límite artificial.
+    <>
+    {/* Bug real: `overflow-x-hidden` (solo un eje en "hidden") fuerza por regla CSS al otro eje a
+        computarse como `auto` — que igual recorta visualmente, por eso `overflow-x-clip` en vez de
+        `overflow-x-hidden` (único valor que no dispara ese quirk): overflow-y queda genuinamente
+        visible y las nubes sangran de verdad hacia Forecast/Noticias sin límite artificial. */}
     <div aria-hidden className="hidden md:block pointer-events-none absolute inset-0 -z-10 overflow-x-clip">
       <div ref={revelarGold} className="absolute -top-28 -left-24 h-96 w-96">
         <div className="h-full w-full rounded-full bg-atmos-gold/25 blur-2xl motion-safe:animate-[atmos-resplandor_9s_ease-in-out_infinite]" />
@@ -112,21 +167,46 @@ export function FormasAtmosfericas() {
         se cancelaban entre sí en el nodo compartido. Un nodo por fuente de
         transform evita el conflicto sin trucos.
       */}
-      <div className="absolute top-0 right-0 h-40 w-36 overflow-hidden rotate-180">
+      {/* h-28 (140px, escalado 125%): más bajo que el gap real medido entre el borde
+          superior de la sección y el título (~172px), así la rama nunca alcanza esa
+          fila sin importar la curva interna — no depende solo del z-index del panel. */}
+      <div className="absolute top-0 right-0 h-28 w-56 overflow-hidden rotate-180">
         <div ref={revelarRamaSup} className="h-full w-full">
           <div className="h-full w-full motion-safe:animate-[atmos-rama-balanceo_7s_ease-in-out_infinite]">
-            <Rama className="h-full w-full" />
+            <Rama className="h-full w-full" {...RAMA_SUP} />
           </div>
         </div>
       </div>
-      <div ref={revelarRamaInf} className="absolute bottom-0 left-0 h-40 w-36 overflow-hidden">
+      <div ref={revelarRamaInf} className="absolute bottom-0 left-0 h-28 w-56 overflow-hidden">
         <div
           className="h-full w-full motion-safe:animate-[atmos-rama-balanceo_8s_ease-in-out_infinite]"
           style={{ animationDelay: '0.6s' }}
         >
-          <Rama className="h-full w-full" />
+          <Rama className="h-full w-full" {...RAMA_INF} />
         </div>
       </div>
     </div>
+
+      {/* Mobile: mismas ramas, más chicas, propio wrapper (no md:block de arriba) —
+          ancladas cerca del título y de la atribución, ambos centrados, únicos huecos
+          libres en un layout mobile casi full-width sin panel flotante. */}
+      <div aria-hidden className="md:hidden pointer-events-none absolute inset-0 -z-10 overflow-x-clip">
+        <div className="absolute top-0 right-0 h-20 w-40 overflow-hidden rotate-180">
+          <div ref={revelarRamaMobileSup} className="h-full w-full">
+            <div className="h-full w-full motion-safe:animate-[atmos-rama-balanceo_7s_ease-in-out_infinite]">
+              <Rama className="h-full w-full" {...RAMA_MOBILE_SUP} />
+            </div>
+          </div>
+        </div>
+        <div ref={revelarRamaMobileInf} className="absolute bottom-0 left-0 h-20 w-40 overflow-hidden">
+          <div
+            className="h-full w-full motion-safe:animate-[atmos-rama-balanceo_8s_ease-in-out_infinite]"
+            style={{ animationDelay: '0.6s' }}
+          >
+            <Rama className="h-full w-full" {...RAMA_MOBILE_INF} />
+          </div>
+        </div>
+      </div>
+    </>
   )
 }

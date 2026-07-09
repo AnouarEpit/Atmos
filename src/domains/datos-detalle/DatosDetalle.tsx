@@ -1,9 +1,10 @@
 import type { ClimaActual } from '../../lib/api/tipos'
-import { nivelUV, direccionViento } from '../../lib/clima/formato'
+import { nivelUV, direccionViento, formatearHora } from '../../lib/clima/formato'
 import { bucketHoraLocal } from '../../lib/clima/horaLocal'
 import { consejoDelDia } from '../../lib/clima/consejo'
 import { useRevelarEnScroll } from '../../shared/hooks/useRevelarEnScroll'
 import { IconoConsejo } from '../../shared/ui/IconoConsejo'
+import { IconoSolMedio } from '../../shared/ui/IconoSolMedio'
 import { IconoAnimado } from './components/IconoAnimado'
 import { RecuadroAtmosferico } from './components/RecuadroAtmosferico'
 import { FilaZen } from './components/FilaZen'
@@ -34,7 +35,7 @@ export function DatosDetalle({ actual, timezoneOffset = 0 }: Props) {
     <section className="relative isolate bg-atmos-bone px-6 md:px-10 py-16">
       <FormasAtmosfericas />
       {/* Panel flotante solo desktop: bg-atmos-sable + esquinas redondeadas, con margen de atmos-bone alrededor (-mx-6 + padding propio). En mobile estas clases no aplican — layout idéntico al de antes. ref: crece al entrar en viewport y se encoge al salir hacia Noticias (useEscalaPanel, solo desktop vía gsap.matchMedia). */}
-      <div ref={escalaPanel} className="md:mx-4 md:rounded-[2.5rem] md:bg-atmos-sable md:px-14 md:py-16">
+      <div ref={escalaPanel} className="md:relative md:z-10 md:mx-4 md:rounded-[2.5rem] md:bg-atmos-sable md:px-14 md:py-16">
       <h2 ref={revelarTitulo} className="font-display text-[2rem] font-light text-atmos-ink text-center">
         Conditions <SubrayadoAnimado />
       </h2>
@@ -74,6 +75,20 @@ export function DatosDetalle({ actual, timezoneOffset = 0 }: Props) {
           <div className="flex items-start gap-3">
             <IconoConsejo tipo={consejo.tipo} className="h-5 w-5 text-atmos-gold shrink-0 mt-0.5" />
             <p className="font-sans text-sm text-atmos-ink leading-relaxed">{consejo.texto}</p>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <IconoSolMedio lado="lever" className="h-5 w-5 shrink-0 text-atmos-gold" />
+              <p className="font-sans text-sm text-atmos-ink">Lever {formatearHora(actual.sunrise, timezoneOffset)}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <IconoSolMedio lado="coucher" className="h-5 w-5 shrink-0 text-atmos-slate" />
+              <p className="font-sans text-sm text-atmos-ink">Coucher {formatearHora(actual.sunset, timezoneOffset)}</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <IconoAnimado tipo="ressenti" className="h-5 w-5 shrink-0 mt-0.5 text-atmos-slate" />
+            <p className="font-sans text-sm text-atmos-ink leading-relaxed">Ressenti {Math.round(actual.feels_like)}°</p>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 interface Props {
-  tipo: 'uv' | 'vent' | 'humidite' | 'pression'
+  tipo: 'uv' | 'vent' | 'humidite' | 'pression' | 'ressenti'
   className?: string
 }
 
@@ -64,6 +64,13 @@ export function IconoAnimado({ tipo, className }: Props) {
             className="motion-safe:animate-[atmos-oscilar-aguja_3s_ease-in-out_infinite]"
             style={{ transformOrigin: '12px 12px' }}
           />
+        </svg>
+      )
+    case 'ressenti':
+      return (
+        <svg {...svgProps} className={`${className ?? ''} motion-safe:animate-[atmos-pulso-opacidad-sutil_2.8s_ease-in-out_infinite]`}>
+          <path d="M12 4a2 2 0 0 0-2 2v7.5a3.5 3.5 0 1 0 4 0V6a2 2 0 0 0-2-2z" />
+          <line x1="12" y1="7" x2="12" y2="14" />
         </svg>
       )
   }

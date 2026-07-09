@@ -47,7 +47,7 @@ export function RecuadroAtmosferico({ esNoche = false, grande = false }: Props) 
       <div
         aria-hidden
         className={`absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(184,194,201,0.6),rgba(74,87,96,0.95)_70%)] transition-opacity duration-500 ${
-          mostrarVideo ? 'animate-[atmos-resplandor_4s_ease-in-out_infinite]' : ''
+          mostrarVideo && !videoListo ? 'animate-[atmos-resplandor_4s_ease-in-out_infinite]' : ''
         } ${mostrarVideo && videoListo ? 'opacity-0' : 'opacity-100'}`}
       />
       {mostrarVideo ? (
