@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 interface Props {
   /** Bucket "nuit" (mismo umbral que useOverlayPorHora, ≥20h local) — cambia a un video de cielo nocturno real en vez del timelapse de nubes diurno. */
   esNoche?: boolean
+  /** Variante desktop — tamaño propio, no responsive (mobile no debe verse afectado). */
+  grande?: boolean
 }
 
 /**
@@ -13,7 +15,7 @@ interface Props {
  * resplandor CSS mientras carga o si falla, y respeta prefers-reduced-motion
  * mostrando un frame estático en su lugar.
  */
-export function RecuadroAtmosferico({ esNoche = false }: Props) {
+export function RecuadroAtmosferico({ esNoche = false, grande = false }: Props) {
   const [reducirMovimiento, setReducirMovimiento] = useState(false)
   const [videoListo, setVideoListo] = useState(false)
 
@@ -35,7 +37,13 @@ export function RecuadroAtmosferico({ esNoche = false }: Props) {
   const base = esNoche ? 'atmosfera-cielo-nuit' : 'atmosfera-cielo'
 
   return (
-    <div className="relative h-[18rem] w-[clamp(7rem,38vw,12.2rem)] shrink-0 overflow-hidden rounded-[1.75rem] bg-atmos-slate">
+    <div
+      className={
+        grande
+          ? 'relative h-[24rem] w-[18rem] shrink-0 overflow-hidden rounded-[2rem] bg-atmos-slate'
+          : 'relative h-[18rem] w-[clamp(9.45rem,38vw,12.2rem)] shrink-0 overflow-hidden rounded-[1.75rem] bg-atmos-slate'
+      }
+    >
       <div
         aria-hidden
         className={`absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(184,194,201,0.6),rgba(74,87,96,0.95)_70%)] transition-opacity duration-500 ${

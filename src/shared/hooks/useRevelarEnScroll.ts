@@ -6,6 +6,8 @@ gsap.registerPlugin(ScrollTrigger)
 
 interface Opciones {
   y?: number
+  /** Escala inicial opcional (ej. 0.35) que crece hasta 1 en sync con el reveal — reversible como el resto (scrub). */
+  scale?: number
   start?: string
   end?: string
 }
@@ -33,6 +35,7 @@ interface Opciones {
  */
 export function useRevelarEnScroll<T extends HTMLElement>({
   y = 36,
+  scale,
   start = 'top 88%',
   end = 'top 55%',
 }: Opciones = {}) {
@@ -46,15 +49,16 @@ export function useRevelarEnScroll<T extends HTMLElement>({
 
       tweenRef.current = gsap.fromTo(
         nodo,
-        { opacity: 0, y },
+        { opacity: 0, y, ...(scale !== undefined ? { scale } : {}) },
         {
           opacity: 1,
           y: 0,
+          ...(scale !== undefined ? { scale: 1 } : {}),
           ease: 'none',
           scrollTrigger: { trigger: nodo, start, end, scrub: 0.4 },
         },
       )
     },
-    [y, start, end],
+    [y, scale, start, end],
   )
 }

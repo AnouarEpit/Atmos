@@ -107,6 +107,11 @@ body {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+/* Ramas decorativas detrás del panel de DatosDetalle: balanceo sutil tipo viento, amplitud chica (MOTION 4/10). */
+@keyframes atmos-rama-balanceo {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
 
 /* Scrollbar fina para paneles de vidrio (BuscadorCiudad) — la nativa del navegador desentona con el resto del diseño.
    Invisible en reposo, aparece solo al pasar el mouse (que es también cuando se hace scroll con rueda, gracias a data-lenis-prevent). */

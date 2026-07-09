@@ -1,12 +1,16 @@
 import type { ClimaActual } from '../../lib/api/tipos'
 import { nivelUV, direccionViento } from '../../lib/clima/formato'
 import { bucketHoraLocal } from '../../lib/clima/horaLocal'
+import { consejoDelDia } from '../../lib/clima/consejo'
 import { useRevelarEnScroll } from '../../shared/hooks/useRevelarEnScroll'
-import { GridDato } from './components/GridDato'
+import { IconoConsejo } from '../../shared/ui/IconoConsejo'
 import { IconoAnimado } from './components/IconoAnimado'
 import { RecuadroAtmosferico } from './components/RecuadroAtmosferico'
 import { FilaZen } from './components/FilaZen'
+import { EstadisticaDesktop } from './components/EstadisticaDesktop'
+import { FormasAtmosfericas } from './components/FormasAtmosfericas'
 import { SubrayadoAnimado } from './components/SubrayadoAnimado'
+import { useEscalaPanel } from './hooks/useEscalaPanel'
 
 interface Props {
   actual?: ClimaActual
@@ -17,15 +21,20 @@ interface Props {
 export function DatosDetalle({ actual, timezoneOffset = 0 }: Props) {
   const revelarTitulo = useRevelarEnScroll<HTMLHeadingElement>({ y: 24, start: 'top 92%', end: 'top 68%' })
   const revelarSubtitulo = useRevelarEnScroll<HTMLParagraphElement>({ y: 20, start: 'top 90%', end: 'top 64%' })
-  const revelarGrid = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%' })
+  const revelarDesktop = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%' })
   const revelarMobile = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%' })
+  const escalaPanel = useEscalaPanel<HTMLDivElement>()
 
   if (!actual) return null
 
   const esNoche = bucketHoraLocal(timezoneOffset) === 'nuit'
+  const consejo = consejoDelDia(actual)
 
   return (
-    <section className="bg-atmos-bone px-6 md:px-10 py-16">
+    <section className="relative isolate bg-atmos-bone px-6 md:px-10 py-16">
+      <FormasAtmosfericas />
+      {/* Panel flotante solo desktop: bg-atmos-sable + esquinas redondeadas, con margen de atmos-bone alrededor (-mx-6 + padding propio). En mobile estas clases no aplican — layout idéntico al de antes. ref: crece al entrar en viewport y se encoge al salir hacia Noticias (useEscalaPanel, solo desktop vía gsap.matchMedia). */}
+      <div ref={escalaPanel} className="md:mx-4 md:rounded-[2.5rem] md:bg-atmos-sable md:px-14 md:py-16">
       <h2 ref={revelarTitulo} className="font-display text-[2rem] font-light text-atmos-ink text-center">
         Conditions <SubrayadoAnimado />
       </h2>
@@ -33,33 +42,43 @@ export function DatosDetalle({ actual, timezoneOffset = 0 }: Props) {
         Détails en temps réel pour aujourd'hui
       </p>
 
-      {/* Desktop: grid 2x4 con iconos animados, sin cambios */}
-      <div ref={revelarGrid} className="hidden md:grid md:grid-cols-4 gap-8">
-        <GridDato
-          etiqueta="UV"
-          valor={String(Math.round(actual.uvi))}
-          detalle={nivelUV(actual.uvi)}
-          icono={<IconoAnimado tipo="uv" className="h-6 w-6 text-atmos-gold" />}
-        />
-        <GridDato
-          etiqueta="Vent"
-          valor={`${Math.round(actual.wind_speed * 3.6)} km/h`}
-          detalle={direccionViento(actual.wind_deg)}
-          icono={<IconoAnimado tipo="vent" className="h-6 w-6 text-atmos-slate" />}
-        />
-        <GridDato
-          etiqueta="Humidité"
-          valor={`${actual.humidity}%`}
-          icono={<IconoAnimado tipo="humidite" className="h-6 w-6 text-atmos-slate" />}
-        />
-        <GridDato
-          etiqueta="Pression"
-          valor={`${actual.pressure} hPa`}
-          icono={<IconoAnimado tipo="pression" className="h-6 w-6 text-atmos-slate" />}
-        />
+      {/* Desktop: video real + grid 2×2 de estadísticas + consejo — fundido en bg-atmos-bone, sin marco de tarjeta */}
+      <div ref={revelarDesktop} className="hidden md:flex gap-16 justify-center items-start">
+        <RecuadroAtmosferico esNoche={esNoche} grande />
+        <div className="flex w-[28rem] flex-col gap-8 pt-1">
+          <div className="grid grid-cols-2 gap-x-12 gap-y-8">
+            <EstadisticaDesktop
+              etiqueta="UV"
+              valor={String(Math.round(actual.uvi))}
+              detalle={nivelUV(actual.uvi)}
+              icono={<IconoAnimado tipo="uv" className="h-5 w-5 text-atmos-gold" />}
+            />
+            <EstadisticaDesktop
+              etiqueta="Vent"
+              valor={`${Math.round(actual.wind_speed * 3.6)} km/h`}
+              detalle={direccionViento(actual.wind_deg)}
+              icono={<IconoAnimado tipo="vent" className="h-5 w-5 text-atmos-slate" />}
+            />
+            <EstadisticaDesktop
+              etiqueta="Humidité"
+              valor={`${actual.humidity}%`}
+              icono={<IconoAnimado tipo="humidite" className="h-5 w-5 text-atmos-slate" />}
+            />
+            <EstadisticaDesktop
+              etiqueta="Pression"
+              valor={`${actual.pressure} hPa`}
+              icono={<IconoAnimado tipo="pression" className="h-5 w-5 text-atmos-slate" />}
+            />
+          </div>
+          <div className="border-t border-atmos-slate/20" />
+          <div className="flex items-start gap-3">
+            <IconoConsejo tipo={consejo.tipo} className="h-5 w-5 text-atmos-gold shrink-0 mt-0.5" />
+            <p className="font-sans text-sm text-atmos-ink leading-relaxed">{consejo.texto}</p>
+          </div>
+        </div>
       </div>
 
-      {/* Mobile: variante "Zen" — recuadro atmosférico + lista de datos */}
+      {/* Mobile: variante "Zen" — recuadro atmosférico + lista de datos (sin cambios) */}
       <div ref={revelarMobile} className="flex gap-[1.4rem] md:hidden max-w-sm mx-auto">
         <RecuadroAtmosferico esNoche={esNoche} />
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-[1.2rem] py-1">
@@ -99,6 +118,7 @@ export function DatosDetalle({ actual, timezoneOffset = 0 }: Props) {
           Open-Meteo.com
         </a>
       </p>
+      </div>
     </section>
   )
 }
