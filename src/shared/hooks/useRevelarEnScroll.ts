@@ -10,7 +10,22 @@ interface Opciones {
   scale?: number
   start?: string
   end?: string
+  /**
+   * Opcional, default `'siempre'` (comportamiento previo sin cambios). Cuando
+   * el elemento vive dentro de un wrapper `hidden md:block`/`md:hidden` (dos
+   * variantes desktop/mobile del mismo contenido, ej. `DatosDetalle`,
+   * `FormasAtmosfericas`), la mitad invisible seguía calculando su
+   * ScrollTrigger en cada scroll igual — trabajo desperdiciado que se suma al
+   * de toda la página. `'desktop'`/`'mobile'` usa `gsap.matchMedia()` (mismo
+   * mecanismo ya probado en `useEscalaPanel`) para no crear ese tween/trigger
+   * fuera de su breakpoint — cero cambio visual (el elemento ya era invisible
+   * ahí), solo menos trabajo por frame.
+   */
+  activarEn?: 'siempre' | 'desktop' | 'mobile'
 }
+
+const CONSULTA_DESKTOP = '(min-width: 768px)'
+const CONSULTA_MOBILE = '(max-width: 767px)'
 
 /**
  * Reveal scroll-scrubbed (cinematográfico: el fade/subida sigue el ritmo
@@ -38,27 +53,51 @@ export function useRevelarEnScroll<T extends HTMLElement>({
   scale,
   start = 'top 88%',
   end = 'top 55%',
+  activarEn = 'siempre',
 }: Opciones = {}) {
   const tweenRef = useRef<gsap.core.Tween | null>(null)
+  const mmRef = useRef<ReturnType<typeof gsap.matchMedia> | null>(null)
 
   return useCallback(
     (nodo: T | null) => {
       tweenRef.current?.scrollTrigger?.kill()
       tweenRef.current?.kill()
+      mmRef.current?.revert()
       if (!nodo) return
 
-      tweenRef.current = gsap.fromTo(
-        nodo,
-        { opacity: 0, y, ...(scale !== undefined ? { scale } : {}) },
-        {
-          opacity: 1,
-          y: 0,
-          ...(scale !== undefined ? { scale: 1 } : {}),
-          ease: 'none',
-          scrollTrigger: { trigger: nodo, start, end, scrub: 0.4 },
-        },
-      )
+      const crearTween = () => {
+        tweenRef.current = gsap.fromTo(
+          nodo,
+          { opacity: 0, y, ...(scale !== undefined ? { scale } : {}) },
+          {
+            opacity: 1,
+            y: 0,
+            ...(scale !== undefined ? { scale: 1 } : {}),
+            ease: 'none',
+            scrollTrigger: { trigger: nodo, start, end, scrub: 0.4 },
+          },
+        )
+      }
+
+      // 'siempre' (default, la inmensa mayoría de los usos de este hook): comportamiento
+      // idéntico al de antes de agregar `activarEn`, sin envolver en matchMedia.
+      if (activarEn === 'siempre') {
+        crearTween()
+        return
+      }
+
+      // 'desktop'/'mobile': el tween/ScrollTrigger ni se crea fuera de su breakpoint —
+      // gsap.matchMedia() ya se encarga de recrearlo/destruirlo solo al cruzar los 768px.
+      const mm = gsap.matchMedia()
+      mmRef.current = mm
+      mm.add(activarEn === 'desktop' ? CONSULTA_DESKTOP : CONSULTA_MOBILE, () => {
+        crearTween()
+        return () => {
+          tweenRef.current?.scrollTrigger?.kill()
+          tweenRef.current?.kill()
+        }
+      })
     },
-    [y, scale, start, end],
+    [y, scale, start, end, activarEn],
   )
 }

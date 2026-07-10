@@ -22,8 +22,11 @@ interface Props {
 export function DatosDetalle({ actual, timezoneOffset = 0 }: Props) {
   const revelarTitulo = useRevelarEnScroll<HTMLHeadingElement>({ y: 24, start: 'top 92%', end: 'top 68%' })
   const revelarSubtitulo = useRevelarEnScroll<HTMLParagraphElement>({ y: 20, start: 'top 90%', end: 'top 64%' })
-  const revelarDesktop = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%' })
-  const revelarMobile = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%' })
+  // activarEn: revelarDesktop/revelarMobile viven en wrappers hidden md:flex / md:hidden —
+  // sin esto, la mitad invisible seguía calculando su ScrollTrigger en cada scroll igual
+  // (ver hallazgo bug scroll trackpad laptop, sesión 2026-07-10).
+  const revelarDesktop = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%', activarEn: 'desktop' })
+  const revelarMobile = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%', activarEn: 'mobile' })
   const escalaPanel = useEscalaPanel<HTMLDivElement>()
 
   if (!actual) return null

@@ -55,25 +55,46 @@ function Flor({ x, y, r = 2.1 }: { x: number; y: number; r?: number }) {
  * fija) no aplica el bug de `lagSmoothing(0)` documentado en
  * `SubrayadoAnimado` (ese solo salta tweens de duración fija).
  */
-function Rama({ className, start, end }: { className?: string; start: string; end: string }) {
+function Rama({
+  className,
+  start,
+  end,
+  activarEn,
+}: {
+  className?: string
+  start: string
+  end: string
+  /** Igual que `activarEn` de `useRevelarEnScroll` — esta instancia vive en un wrapper
+   * hidden md:block/md:hidden, así que el timeline (tronco+flores) tampoco se crea
+   * fuera de su breakpoint (gsap.matchMedia, mismo mecanismo). */
+  activarEn: 'desktop' | 'mobile'
+}) {
   const svgRef = useCallback(
     (svg: SVGSVGElement | null) => {
       if (!svg) return
-      const tronco = svg.querySelectorAll<SVGPathElement>('[data-tronco]')
-      const flores = svg.querySelectorAll<SVGGElement>('[data-flor]')
-      gsap.set(tronco, { strokeDasharray: 1, strokeDashoffset: 1 })
-      gsap.set(flores, { opacity: 0, scale: 0 })
 
-      const tl = gsap.timeline({ scrollTrigger: { trigger: svg, start, end, scrub: 0.9 } })
-      tl.to(tronco, { strokeDashoffset: 0, ease: 'none', duration: 1.6, stagger: 0.2 })
-      tl.to(flores, { opacity: 1, scale: 1, ease: 'sine.out', duration: 1, stagger: 0.18 }, '-=0.7')
+      const crearTimeline = () => {
+        const tronco = svg.querySelectorAll<SVGPathElement>('[data-tronco]')
+        const flores = svg.querySelectorAll<SVGGElement>('[data-flor]')
+        gsap.set(tronco, { strokeDasharray: 1, strokeDashoffset: 1 })
+        gsap.set(flores, { opacity: 0, scale: 0 })
 
-      return () => {
-        tl.scrollTrigger?.kill()
-        tl.kill()
+        const tl = gsap.timeline({ scrollTrigger: { trigger: svg, start, end, scrub: 0.9 } })
+        tl.to(tronco, { strokeDashoffset: 0, ease: 'none', duration: 1.6, stagger: 0.2 })
+        tl.to(flores, { opacity: 1, scale: 1, ease: 'sine.out', duration: 1, stagger: 0.18 }, '-=0.7')
+
+        return () => {
+          tl.scrollTrigger?.kill()
+          tl.kill()
+        }
       }
+
+      const mm = gsap.matchMedia()
+      mm.add(activarEn === 'desktop' ? '(min-width: 768px)' : '(max-width: 767px)', crearTimeline)
+
+      return () => mm.revert()
     },
-    [start, end],
+    [start, end, activarEn],
   )
 
   return (
@@ -119,8 +140,23 @@ function Rama({ className, start, end }: { className?: string; start: string; en
  * y respeta prefers-reduced-motion (motion-safe).
  */
 export function FormasAtmosfericas() {
-  const revelarGold = useRevelarEnScroll<HTMLDivElement>({ y: 16, scale: 0.35, start: 'top 95%', end: 'top 45%' })
-  const revelarSlate = useRevelarEnScroll<HTMLDivElement>({ y: -16, start: 'top 88%', end: 'top 50%' })
+  // activarEn 'desktop'/'mobile': estos 6 reveals viven en wrappers hidden md:block /
+  // md:hidden (dos variantes del mismo contenido) — sin esto, la mitad invisible en
+  // cada breakpoint seguía calculando su ScrollTrigger en cada scroll igual, sumando
+  // carga de trabajo por frame (hallazgo bug scroll trackpad laptop, sesión 2026-07-10).
+  const revelarGold = useRevelarEnScroll<HTMLDivElement>({
+    y: 16,
+    scale: 0.35,
+    start: 'top 95%',
+    end: 'top 45%',
+    activarEn: 'desktop',
+  })
+  const revelarSlate = useRevelarEnScroll<HTMLDivElement>({
+    y: -16,
+    start: 'top 88%',
+    end: 'top 50%',
+    activarEn: 'desktop',
+  })
   // Contenedor: fade+translate de entrada nomás. El "crecimiento" real ahora lo da
   // el trazo dibujándose + flores apareciendo dentro de <Rama> (mismo start/end,
   // pasado como prop para que ambos efectos queden sincronizados).
@@ -130,13 +166,13 @@ export function FormasAtmosfericas() {
   const RAMA_INF = { start: 'top 92%', end: 'top 20%' }
   const RAMA_MOBILE_SUP = { start: 'top 95%', end: 'top 30%' }
   const RAMA_MOBILE_INF = { start: 'top 92%', end: 'top 30%' }
-  const revelarRamaSup = useRevelarEnScroll<HTMLDivElement>({ y: -12, ...RAMA_SUP })
-  const revelarRamaInf = useRevelarEnScroll<HTMLDivElement>({ y: 12, ...RAMA_INF })
+  const revelarRamaSup = useRevelarEnScroll<HTMLDivElement>({ y: -12, ...RAMA_SUP, activarEn: 'desktop' })
+  const revelarRamaInf = useRevelarEnScroll<HTMLDivElement>({ y: 12, ...RAMA_INF, activarEn: 'desktop' })
   // Mobile: ramas propias, más chicas, ancladas cerca del título (centrado, esquinas
   // libres) y de la atribución (también centrada) — no reusar posición/tamaño desktop,
   // huecos vacíos son otros en mobile (sin panel flotante, contenido casi full-width).
-  const revelarRamaMobileSup = useRevelarEnScroll<HTMLDivElement>({ y: -10, ...RAMA_MOBILE_SUP })
-  const revelarRamaMobileInf = useRevelarEnScroll<HTMLDivElement>({ y: 10, ...RAMA_MOBILE_INF })
+  const revelarRamaMobileSup = useRevelarEnScroll<HTMLDivElement>({ y: -10, ...RAMA_MOBILE_SUP, activarEn: 'mobile' })
+  const revelarRamaMobileInf = useRevelarEnScroll<HTMLDivElement>({ y: 10, ...RAMA_MOBILE_INF, activarEn: 'mobile' })
 
   return (
     <>
@@ -173,7 +209,7 @@ export function FormasAtmosfericas() {
       <div className="absolute top-0 right-0 h-28 w-56 overflow-hidden rotate-180">
         <div ref={revelarRamaSup} className="h-full w-full">
           <div className="h-full w-full motion-safe:animate-[atmos-rama-balanceo_7s_ease-in-out_infinite]">
-            <Rama className="h-full w-full" {...RAMA_SUP} />
+            <Rama className="h-full w-full" {...RAMA_SUP} activarEn="desktop" />
           </div>
         </div>
       </div>
@@ -182,7 +218,7 @@ export function FormasAtmosfericas() {
           className="h-full w-full motion-safe:animate-[atmos-rama-balanceo_8s_ease-in-out_infinite]"
           style={{ animationDelay: '0.6s' }}
         >
-          <Rama className="h-full w-full" {...RAMA_INF} />
+          <Rama className="h-full w-full" {...RAMA_INF} activarEn="desktop" />
         </div>
       </div>
     </div>
@@ -194,7 +230,7 @@ export function FormasAtmosfericas() {
         <div className="absolute top-0 right-0 h-20 w-40 overflow-hidden rotate-180">
           <div ref={revelarRamaMobileSup} className="h-full w-full">
             <div className="h-full w-full motion-safe:animate-[atmos-rama-balanceo_7s_ease-in-out_infinite]">
-              <Rama className="h-full w-full" {...RAMA_MOBILE_SUP} />
+              <Rama className="h-full w-full" {...RAMA_MOBILE_SUP} activarEn="mobile" />
             </div>
           </div>
         </div>
@@ -203,7 +239,7 @@ export function FormasAtmosfericas() {
             className="h-full w-full motion-safe:animate-[atmos-rama-balanceo_8s_ease-in-out_infinite]"
             style={{ animationDelay: '0.6s' }}
           >
-            <Rama className="h-full w-full" {...RAMA_MOBILE_INF} />
+            <Rama className="h-full w-full" {...RAMA_MOBILE_INF} activarEn="mobile" />
           </div>
         </div>
       </div>
