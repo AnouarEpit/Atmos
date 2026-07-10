@@ -1,16 +1,18 @@
 /**
- * Noticias reales vía NewsData.io (`/api/1/latest`) — reemplaza el mock
- * anterior. `country=fr`+`language=fr` (noticias de Francia, no de la
- * ciudad seleccionada: la API no filtra por ciudad de forma confiable en
- * el plan free, así que dejó de tener sentido inyectar el nombre de
- * ciudad en los titulares como hacía el mock). `image=1` pide solo
- * artículos que ya traen imagen (evita placeholders/huecos en las
- * tarjetas). `removeduplicate=1` filtra sindicaciones repetidas entre
- * medios del mismo grupo editorial.
+ * Noticias reales vía NewsData.io (`/api/1/latest`). Dos alcances:
+ * - `francia`: `country=fr`+`language=fr` — noticias de Francia (feed principal).
+ * - `mundo`: solo `language=fr`, sin `country` — noticias globales pero en
+ *   francés (medios francófonos de cualquier país: RFI, France24 Monde, etc.),
+ *   coherente con que el sitio entero está en francés, en vez de mezclar
+ *   idiomas en la tarjeta.
  *
- * Caché en memoria de 15 min: el free tier de NewsData.io ya entrega los
- * artículos con 12h de delay (no cambian minuto a minuto), y esto evita
- * gastar cuota (200 créditos/día) con cada visita si varios usuarios
+ * `image=1` pide solo artículos que ya traen imagen (evita huecos en las
+ * tarjetas). `removeduplicate=1` filtra sindicaciones repetidas entre medios
+ * del mismo grupo editorial.
+ *
+ * Caché en memoria de 15 min POR ALCANCE: el free tier de NewsData.io ya
+ * entrega los artículos con 12h de delay (no cambian minuto a minuto), y esto
+ * evita gastar cuota (200 créditos/día) con cada visita si varios usuarios
  * entran en un rango corto de tiempo.
  */
 const CATEGORIAS_FR = {
@@ -34,7 +36,7 @@ const CATEGORIAS_FR = {
 }
 
 const DURACION_CACHE_MS = 15 * 60 * 1000
-let cache = { datos: null, expiraEn: 0 }
+const cachePorAlcance = new Map()
 
 function traducirCategoria(categorias) {
   const primera = categorias?.[0] ?? 'other'
@@ -46,18 +48,27 @@ function pubDateAIso(pubDate) {
   return new Date(`${pubDate.replace(' ', 'T')}Z`).toISOString()
 }
 
-async function obtenerDeNewsData() {
+async function obtenerDeNewsData(alcance) {
   const apiKey = process.env.NEWSDATA_API_KEY
   if (!apiKey) throw new Error('Falta NEWSDATA_API_KEY en el entorno')
 
   const parametros = new URLSearchParams({
     apikey: apiKey,
-    country: 'fr',
     language: 'fr',
     image: '1',
     removeduplicate: '1',
-    size: '8',
+    size: alcance === 'mundo' ? '6' : '8',
   })
+  // Sacar `country` solo (sin más) seguía devolviendo mayoría Francia — el francés
+  // es idioma dominante de Francia, no filtra "internacional" por sí solo.
+  // `category=world` sí trae contenido genuinamente global (verificado en vivo:
+  // Congo, Senegal, OTAN/Ucrania), aunque la fuente sea un medio francés cubriendo
+  // el mundo — que es exactamente "noticias mundiales" en francés, lo pedido.
+  if (alcance === 'mundo') {
+    parametros.set('category', 'world')
+  } else {
+    parametros.set('country', 'fr')
+  }
 
   const respuesta = await fetch(`https://newsdata.io/api/1/latest?${parametros}`)
   if (!respuesta.ok) {
@@ -84,12 +95,13 @@ async function obtenerDeNewsData() {
   })
 }
 
-export async function obtenerNoticias() {
-  if (cache.datos && cache.expiraEn > Date.now()) {
+export async function obtenerNoticias(alcance = 'francia') {
+  const cache = cachePorAlcance.get(alcance)
+  if (cache && cache.expiraEn > Date.now()) {
     return cache.datos
   }
 
-  const datos = await obtenerDeNewsData()
-  cache = { datos, expiraEn: Date.now() + DURACION_CACHE_MS }
+  const datos = await obtenerDeNewsData(alcance)
+  cachePorAlcance.set(alcance, { datos, expiraEn: Date.now() + DURACION_CACHE_MS })
   return datos
 }

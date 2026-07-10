@@ -13,8 +13,8 @@ export interface Noticia {
   publicadoEn: string
 }
 
-export async function obtenerNoticias(): Promise<Noticia[]> {
-  const respuesta = await fetch('/api/noticias')
+export async function obtenerNoticias(alcance: 'francia' | 'mundo' = 'francia'): Promise<Noticia[]> {
+  const respuesta = await fetch(`/api/noticias?alcance=${alcance}`)
 
   if (!respuesta.ok) {
     throw new Error(`Error al obtener noticias (${respuesta.status})`)

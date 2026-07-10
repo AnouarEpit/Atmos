@@ -15,8 +15,7 @@
   --color-atmos-slate: #4a5760;
   --color-atmos-gold: #c0973a;
   --color-atmos-fog: #b8c2c9;
-  /* Semáforo de calidad del aire (ResumenCiudad) — únicos colores del sitio fuera de la paleta editorial, deliberadamente. */
-  --color-atmos-good: #5b7a5e;
+  /* Terracota de las flores de FormasAtmosfericas (DatosDetalle) — único color del sitio fuera de la paleta editorial, deliberadamente. */
   --color-atmos-bad: #a8503f;
 
   --font-display: "Fraunces", ui-serif, Georgia, serif;

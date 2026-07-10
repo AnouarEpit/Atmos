@@ -48,7 +48,7 @@ export default function App() {
       />
       <Forecast dias={clima?.daily} />
       <DatosDetalle actual={clima?.current} timezoneOffset={clima?.timezone_offset} />
-      <Noticias ciudad={ciudadActual} clima={clima} />
+      <Noticias />
     </>
   )
 }

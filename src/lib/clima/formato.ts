@@ -19,16 +19,9 @@ export function formatearHora(unixSegundos: number, timezoneOffsetSegundos: numb
   return `${horas}:${minutos}`
 }
 
-/** Bucketing simple del índice europeo de calidad del aire (0-100+) de Open-Meteo Air Quality. */
-export function calidadAireInfo(aqi: number): { etiqueta: string; colorClase: string } {
-  if (aqi <= 40) return { etiqueta: 'Bonne', colorClase: 'bg-atmos-good' }
-  if (aqi <= 80) return { etiqueta: 'Modérée', colorClase: 'bg-atmos-gold' }
-  return { etiqueta: 'Mauvaise', colorClase: 'bg-atmos-bad' }
-}
-
 const DIRECCIONES_VIENTO = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO']
 
-/** Compartido entre datos-detalle y ResumenCiudad (noticias) — evita duplicar la lógica. */
+/** Compartido entre datos-detalle y hero — evita duplicar la lógica. */
 export function direccionViento(grados: number): string {
   return DIRECCIONES_VIENTO[Math.round(grados / 45) % 8]
 }
