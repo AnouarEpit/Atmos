@@ -21,12 +21,12 @@ export function ArticuloDestacado({ noticia }: Props) {
             />
           </div>
         )}
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3">
           {/* fondo atmos-gold + texto atmos-ink (no atmos-bone): bone sobre gold da 2.37:1, falla WCAG AA — ink sobre gold da 6.56:1 */}
-          <span className="font-mono text-[0.6875rem] uppercase tracking-wider bg-atmos-gold text-atmos-ink px-2.5 py-1 rounded-full">
+          <span className="font-mono text-[0.6875rem] uppercase tracking-wider bg-atmos-gold text-atmos-ink px-2.5 py-1 rounded-full whitespace-nowrap">
             {noticia.categoria}
           </span>
-          <time dateTime={noticia.publicadoEn} className="font-mono text-xs text-atmos-slate">
+          <time dateTime={noticia.publicadoEn} className="font-mono text-xs text-atmos-slate whitespace-nowrap">
             il y a {noticia.publicadoHaceHoras}h
           </time>
         </div>

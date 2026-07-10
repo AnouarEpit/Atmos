@@ -32,9 +32,13 @@ export function NoticiasMundo() {
             href={noticia.enlace}
             target="_blank"
             rel="noreferrer"
-            className={`group flex items-start gap-4 py-4 ${indice > 0 ? 'border-t border-atmos-slate/20' : ''}`}
+            className={`group flex items-center gap-4 py-4 ${indice > 0 ? 'border-t border-atmos-slate/20' : ''}`}
           >
             {noticia.imagen && (
+              // Tamaño FIJO (cuadrado, mismo que el diseño original) + `items-center`
+              // en el <a>: mantiene el recorte natural de la foto (estirarla a una tira
+              // angosta para llenar titulares largos se probó y se veía roto) — el
+              // centrado resuelve el desbalance de alturas sin deformar la imagen.
               <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-atmos-slate/10">
                 <img
                   src={noticia.imagen}

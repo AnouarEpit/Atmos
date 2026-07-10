@@ -261,6 +261,16 @@ Pedido del usuario (le gustó tanto el resultado de noticias reales que pidió a
 - `App.tsx`/`Noticias.tsx` perdieron las props `ciudad`/`clima` (ya sin ningún consumidor tras borrar `ResumenCiudad`).
 - Verificado con Playwright: tarjeta "Dans le monde" con imágenes reales, categoría "Monde" traducida, clicable: sin overflow horizontal 375/1440px, `tsc` limpio.
 
+### Miniaturas de `ItemNoticiaCompacto`/`NoticiasMundo`: foto chica vs texto largo en mobile
+
+Usuario reportó hueco vacío bajo la miniatura en mobile cuando el titular envuelve varias líneas (foto `h-20 w-20` fija, texto mucho más alto). Dos rondas:
+
+- **Intento 1 — estirar la foto al alto del texto** (`items-stretch`, sin altura fija): resolvía el hueco pero, al preguntarle si se veía "minimalista moderno" antes de aplicar más cambios, el usuario mostró una captura real — las fotos (casi siempre 16:9, fotos de noticias) quedaban recortadas en una tira vertical angosta y rota (sujetos cortados al azar). Análisis honesto: no, se veía como artefacto, no diseño.
+- **Fix real — tamaño FIJO + centrado vertical** (`items-center` en vez de `items-stretch`/`items-start`): la foto mantiene su recorte natural (cuadrado, mismo tamaño que el diseño original) y el desbalance de alturas se resuelve centrándola contra el bloque de texto, no deformándola.
+- **Regresión propia detectada a tiempo**: al centrar, de paso se probó agrandar la miniatura a landscape (`w-24`/`w-20`, antes `w-20`/`w-16`) — rompía el ajuste en una línea de "À la une · il y a 12h" en mobile (categoría+hora comparten fila con menos ancho por la foto más ancha). Revertido a los anchos originales (`w-20 h-20` / `w-16 h-16`) tras medir el ancho real disponible con Playwright.
+- **Wrap feo detectado de paso, no reportado por el usuario todavía**: con la categoría más larga del set ("Environnement", 13 letras) la fila categoría+hora igual no entraba en una línea en mobile angosto, y rompía a media palabra ("il y a" / "12h" separados) — ya pasaba antes de esta ronda, no es regresión de hoy. Fix: `flex-wrap` en la fila + `whitespace-nowrap` en cada mitad (categoría; "· il y a Nh" agrupado como una sola unidad) — si no entra en una línea, cada mitad baja completa a la siguiente, nunca partida a media palabra. Mismo tratamiento aplicado también en `ArticuloDestacado` por consistencia (menor riesgo ahí, columna más ancha, pero mismo patrón).
+- Verificado con Playwright midiendo anchos reales (no solo mirando capturas) antes y después de cada cambio, sin overflow horizontal 375px.
+
 **Pendientes próxima sesión:**
 1. Reemplazar 13 placeholders SVG restantes en `public/images/villes/` por fotografía real curada (mismo patrón: `sharp`, ancho 2000px, mozjpeg, <400KB) — usar checklist rápido (`npm run verificar-hero -- <slug> <lat> <lon>`) para cada una. Caso "resplandor cielo brillante" (no solo "cielo saturado" tipo Lyon) ya cubierto por panel reforzado (`black/90 via/75`), margen seguridad actual más alto que antes.
 2. ~~Pulido visual/responsive fino (mobile) y textura niebla en overlay~~ — grano fotográfico agregado (`FondoDinamico.tsx`, feTurbulence SVG, ver sección propia abajo) y Noticias mobile ya tiene su pase (era el único dominio que faltaba). Sigue pendiente: pulido responsive más fino en general si aparecen casos nuevos.
