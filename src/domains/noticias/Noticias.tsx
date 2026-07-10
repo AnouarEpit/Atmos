@@ -3,6 +3,7 @@ import { obtenerNoticias } from '../../lib/api/noticiasApi'
 import { useRevelarEnScroll } from '../../shared/hooks/useRevelarEnScroll'
 import { ArticuloDestacado } from './components/ArticuloDestacado'
 import { CirculoAnimado } from './components/CirculoAnimado'
+import { Bourse } from './components/Bourse'
 import { ItemNoticiaCompacto } from './components/ItemNoticiaCompacto'
 import { NoticiasMundo } from './components/NoticiasMundo'
 
@@ -44,7 +45,10 @@ export function Noticias() {
             ))}
           </div>
 
-          <NoticiasMundo />
+          <div className="flex flex-col gap-8">
+            <NoticiasMundo />
+            <Bourse />
+          </div>
         </div>
       </div>
     </section>

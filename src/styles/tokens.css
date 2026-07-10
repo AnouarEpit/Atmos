@@ -15,8 +15,9 @@
   --color-atmos-slate: #4a5760;
   --color-atmos-gold: #c0973a;
   --color-atmos-fog: #b8c2c9;
-  /* Terracota de las flores de FormasAtmosfericas (DatosDetalle) — único color del sitio fuera de la paleta editorial, deliberadamente. */
+  /* Terracota de las flores de FormasAtmosfericas (DatosDetalle), reusado para "baja" en Bourse — único par de colores del sitio fuera de la paleta editorial, deliberadamente. Contraste verificado sobre blanco: verde 4.78:1, rojo 5.41:1 (WCAG AA). */
   --color-atmos-bad: #a8503f;
+  --color-atmos-alza: #5b7a5e;
 
   --font-display: "Fraunces", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
