@@ -15,9 +15,14 @@ interface Props {
 export function Noticias({ ciudad, clima }: Props) {
   const revelarHeader = useRevelarEnScroll<HTMLDivElement>({ y: 24, start: 'top 92%', end: 'top 68%' })
   const revelarGrid = useRevelarEnScroll<HTMLDivElement>({ start: 'top 85%', end: 'top 50%' })
+  // Ya no depende de la ciudad seleccionada: son noticias reales de Francia (NewsData.io,
+  // plan free no filtra de forma confiable por ciudad), no un feed personalizado por ciudad
+  // como simulaba el mock anterior. staleTime largo: el backend ya cachea 15min de su lado,
+  // y el contenido no cambia minuto a minuto — evita refetch al solo cambiar de ciudad.
   const { data } = useQuery({
-    queryKey: ['noticias', ciudad.nombre],
-    queryFn: () => obtenerNoticias(ciudad.nombre),
+    queryKey: ['noticias'],
+    queryFn: obtenerNoticias,
+    staleTime: 15 * 60 * 1000,
   })
 
   if (!data?.length) return null
@@ -35,8 +40,8 @@ export function Noticias({ ciudad, clima }: Props) {
         <div ref={revelarGrid} className="grid grid-cols-1 lg:grid-cols-[1fr_23rem] gap-12">
           <div>
             <ArticuloDestacado noticia={destacada} />
-            {resto.map((noticia, indice) => (
-              <ItemNoticiaCompacto key={noticia.id} noticia={noticia} indice={indice + 1} />
+            {resto.map((noticia) => (
+              <ItemNoticiaCompacto key={noticia.id} noticia={noticia} />
             ))}
           </div>
 

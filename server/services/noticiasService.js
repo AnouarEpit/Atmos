@@ -1,60 +1,95 @@
 /**
- * Datos mockeados: la sección noticias no está conectada a una API real
- * todavía (decisión de alcance para evitar una tercera dependencia externa
- * con cuota en la demo de portafolio). La forma de la respuesta ya imita
- * la de un servicio real para poder sustituirla sin tocar el frontend.
+ * Noticias reales vía NewsData.io (`/api/1/latest`) — reemplaza el mock
+ * anterior. `country=fr`+`language=fr` (noticias de Francia, no de la
+ * ciudad seleccionada: la API no filtra por ciudad de forma confiable en
+ * el plan free, así que dejó de tener sentido inyectar el nombre de
+ * ciudad en los titulares como hacía el mock). `image=1` pide solo
+ * artículos que ya traen imagen (evita placeholders/huecos en las
+ * tarjetas). `removeduplicate=1` filtra sindicaciones repetidas entre
+ * medios del mismo grupo editorial.
+ *
+ * Caché en memoria de 15 min: el free tier de NewsData.io ya entrega los
+ * artículos con 12h de delay (no cambian minuto a minuto), y esto evita
+ * gastar cuota (200 créditos/día) con cada visita si varios usuarios
+ * entran en un rango corto de tiempo.
  */
-const PLANTILLAS = [
-  {
-    categoria: 'Santé',
-    titular: (c) => `Vague de chaleur : les recommandations sanitaires à ${c}`,
-    extracto: (c) => `Les autorités appellent à la vigilance face aux fortes températures attendues cette semaine à ${c}.`,
-    fuente: 'Météo-France',
-  },
-  {
-    categoria: 'Science',
-    titular: (c) => `Pourquoi le ciel de ${c} change de couleur au coucher du soleil`,
-    extracto: () => `La diffusion de la lumière dans l'atmosphère explique ces teintes changeantes observées chaque soir.`,
-    fuente: 'Le Monde Sciences',
-  },
-  {
-    categoria: 'Société',
-    titular: (c) => `${c} : comment les habitants s'adaptent aux épisodes de pluie intense`,
-    extracto: (c) => `Entre infrastructures repensées et nouveaux réflexes du quotidien, ${c} apprend à vivre avec des pluies plus intenses.`,
-    fuente: 'France Info',
-  },
-  {
-    categoria: 'Environnement',
-    titular: (c) => `Qualité de l'air à ${c} : les chiffres de la semaine`,
-    extracto: () => `Les niveaux de particules fines restent globalement stables, avec quelques pics ponctuels relevés en centre-ville.`,
-    fuente: 'AirParif',
-  },
-  {
-    categoria: 'Climat',
-    titular: (c) => `Un printemps plus précoce observé autour de ${c}`,
-    extracto: () => `Les relevés des dix dernières années confirment une avancée progressive des beaux jours dès la fin février.`,
-    fuente: 'Reuters',
-  },
-  {
-    categoria: 'Météo',
-    titular: () => "Comprendre l'indice UV : ce que signifient vraiment les chiffres",
-    extracto: () => `De 1 à 11+, l'indice UV mesure l'intensité du rayonnement solaire et guide les bons réflexes de protection.`,
-    fuente: 'Organisation Météorologique Mondiale',
-  },
-]
+const CATEGORIAS_FR = {
+  business: 'Économie',
+  crime: 'Faits divers',
+  domestic: 'Société',
+  education: 'Éducation',
+  entertainment: 'Culture',
+  environment: 'Environnement',
+  food: 'Gastronomie',
+  health: 'Santé',
+  lifestyle: 'Style de vie',
+  politics: 'Politique',
+  science: 'Science',
+  sports: 'Sport',
+  technology: 'Technologie',
+  tourism: 'Tourisme',
+  top: 'À la une',
+  world: 'Monde',
+  other: 'Actualité',
+}
 
-export function obtenerNoticias(nombreCiudad) {
+const DURACION_CACHE_MS = 15 * 60 * 1000
+let cache = { datos: null, expiraEn: 0 }
+
+function traducirCategoria(categorias) {
+  const primera = categorias?.[0] ?? 'other'
+  return CATEGORIAS_FR[primera] ?? 'Actualité'
+}
+
+/** NewsData.io da `pubDate` "naive" en UTC (ej. "2026-07-09 12:05:00") + `pubDateTZ:"UTC"` — se le agrega la Z explícita, no se asume la zona del servidor. */
+function pubDateAIso(pubDate) {
+  return new Date(`${pubDate.replace(' ', 'T')}Z`).toISOString()
+}
+
+async function obtenerDeNewsData() {
+  const apiKey = process.env.NEWSDATA_API_KEY
+  if (!apiKey) throw new Error('Falta NEWSDATA_API_KEY en el entorno')
+
+  const parametros = new URLSearchParams({
+    apikey: apiKey,
+    country: 'fr',
+    language: 'fr',
+    image: '1',
+    removeduplicate: '1',
+    size: '8',
+  })
+
+  const respuesta = await fetch(`https://newsdata.io/api/1/latest?${parametros}`)
+  if (!respuesta.ok) {
+    throw new Error(`NewsData.io respondió ${respuesta.status}`)
+  }
+
+  const cuerpo = await respuesta.json()
   const ahora = Date.now()
-  return PLANTILLAS.map((plantilla, indice) => {
-    const horas = 1 + indice * 3
+
+  return (cuerpo.results ?? []).map((articulo) => {
+    const publicadoEn = pubDateAIso(articulo.pubDate)
+    const horas = Math.max(1, Math.round((ahora - new Date(publicadoEn).getTime()) / 3_600_000))
     return {
-      id: `${nombreCiudad}-${indice}`,
-      categoria: plantilla.categoria,
-      titular: plantilla.titular(nombreCiudad),
-      extracto: plantilla.extracto(nombreCiudad),
-      fuente: plantilla.fuente,
+      id: articulo.article_id,
+      categoria: traducirCategoria(articulo.category),
+      titular: articulo.title,
+      extracto: articulo.description || articulo.title,
+      fuente: articulo.source_name,
+      enlace: articulo.link,
+      imagen: articulo.image_url,
       publicadoHaceHoras: horas,
-      publicadoEn: new Date(ahora - horas * 3600 * 1000).toISOString(),
+      publicadoEn,
     }
   })
+}
+
+export async function obtenerNoticias() {
+  if (cache.datos && cache.expiraEn > Date.now()) {
+    return cache.datos
+  }
+
+  const datos = await obtenerDeNewsData()
+  cache = { datos, expiraEn: Date.now() + DURACION_CACHE_MS }
+  return datos
 }

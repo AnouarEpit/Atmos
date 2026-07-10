@@ -4,13 +4,17 @@ export interface Noticia {
   titular: string
   extracto: string
   fuente: string
+  /** URL del artículo real (NewsData.io) — hace clicable la tarjeta. */
+  enlace: string
+  /** Puede faltar pese al filtro `image=1` del backend (datos de terceros) — los componentes deben degradar sin ella. */
+  imagen?: string
   publicadoHaceHoras: number
   /** ISO 8601 real, para <time dateTime=...> — no solo el texto "il y a Nh". */
   publicadoEn: string
 }
 
-export async function obtenerNoticias(ciudad: string): Promise<Noticia[]> {
-  const respuesta = await fetch(`/api/noticias?ciudad=${encodeURIComponent(ciudad)}`)
+export async function obtenerNoticias(): Promise<Noticia[]> {
+  const respuesta = await fetch('/api/noticias')
 
   if (!respuesta.ok) {
     throw new Error(`Error al obtener noticias (${respuesta.status})`)
