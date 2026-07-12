@@ -4,7 +4,8 @@ import { obtenerNoticias } from '../services/noticiasService.js'
 export const noticiasRouter = Router()
 
 noticiasRouter.get('/', async (req, res) => {
-  const alcance = req.query.alcance === 'mundo' ? 'mundo' : 'francia'
+  const ALCANCES_VALIDOS = ['francia', 'mundo', 'finanzas', 'sport', 'culture']
+  const alcance = ALCANCES_VALIDOS.includes(req.query.alcance) ? req.query.alcance : 'francia'
   try {
     res.json(await obtenerNoticias(alcance))
   } catch (error) {

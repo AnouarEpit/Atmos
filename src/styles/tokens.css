@@ -112,6 +112,11 @@ body {
   0%, 100% { transform: rotate(-2deg); }
   50% { transform: rotate(2deg); }
 }
+/* Ticker Bourse (pestaña mobile de Noticias): contenido duplicado x2 en el DOM, -50% desplaza exactamente una copia completa — loop continuo sin salto. Solo transform, sin reflow. */
+@keyframes atmos-ticker-flujo {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
 
 /* Scrollbar fina para paneles de vidrio (BuscadorCiudad) — la nativa del navegador desentona con el resto del diseño.
    Invisible en reposo, aparece solo al pasar el mouse (que es también cuando se hace scroll con rueda, gracias a data-lenis-prevent). */

@@ -1,10 +1,15 @@
 /**
- * Noticias reales vía NewsData.io (`/api/1/latest`). Dos alcances:
+ * Noticias reales vía NewsData.io (`/api/1/latest`). Tres alcances:
  * - `francia`: `country=fr`+`language=fr` — noticias de Francia (feed principal).
  * - `mundo`: solo `language=fr`, sin `country` — noticias globales pero en
  *   francés (medios francófonos de cualquier país: RFI, France24 Monde, etc.),
  *   coherente con que el sitio entero está en francés, en vez de mezclar
  *   idiomas en la tarjeta.
+ * - `finanzas`: `category=business`+`country=fr` — noticias económicas/bursátiles
+ *   de Francia, para la pestaña Bourse (complementa el ticker de mercados con
+ *   contexto real, no solo números).
+ * - `sport`/`culture`: `category=sports`/`category=entertainment`+`country=fr` —
+ *   para el nav de categorías de "À la une" (mismo patrón que `finanzas`).
  *
  * `image=1` pide solo artículos que ya traen imagen (evita huecos en las
  * tarjetas). `removeduplicate=1` filtra sindicaciones repetidas entre medios
@@ -57,7 +62,7 @@ async function obtenerDeNewsData(alcance) {
     language: 'fr',
     image: '1',
     removeduplicate: '1',
-    size: alcance === 'mundo' ? '6' : '8',
+    size: alcance === 'francia' ? '8' : '6',
   })
   // Sacar `country` solo (sin más) seguía devolviendo mayoría Francia — el francés
   // es idioma dominante de Francia, no filtra "internacional" por sí solo.
@@ -66,6 +71,15 @@ async function obtenerDeNewsData(alcance) {
   // el mundo — que es exactamente "noticias mundiales" en francés, lo pedido.
   if (alcance === 'mundo') {
     parametros.set('category', 'world')
+  } else if (alcance === 'finanzas') {
+    parametros.set('category', 'business')
+    parametros.set('country', 'fr')
+  } else if (alcance === 'sport') {
+    parametros.set('category', 'sports')
+    parametros.set('country', 'fr')
+  } else if (alcance === 'culture') {
+    parametros.set('category', 'entertainment')
+    parametros.set('country', 'fr')
   } else {
     parametros.set('country', 'fr')
   }

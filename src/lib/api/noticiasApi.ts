@@ -13,7 +13,9 @@ export interface Noticia {
   publicadoEn: string
 }
 
-export async function obtenerNoticias(alcance: 'francia' | 'mundo' = 'francia'): Promise<Noticia[]> {
+export type AlcanceNoticias = 'francia' | 'mundo' | 'finanzas' | 'sport' | 'culture'
+
+export async function obtenerNoticias(alcance: AlcanceNoticias = 'francia'): Promise<Noticia[]> {
   const respuesta = await fetch(`/api/noticias?alcance=${alcance}`)
 
   if (!respuesta.ok) {

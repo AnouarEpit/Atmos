@@ -13,7 +13,9 @@ export function ArticuloDestacado({ noticia }: Props) {
             <img
               src={noticia.imagen}
               alt=""
-              loading="lazy"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
               className="h-full w-full object-cover transition-[scale] duration-[650ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
               onError={(e) => {
                 e.currentTarget.parentElement!.style.display = 'none'
