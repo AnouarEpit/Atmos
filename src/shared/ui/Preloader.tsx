@@ -52,6 +52,7 @@ export function Preloader({ listo, onTerminado }: PreloaderProps) {
 
   const [letrasVisibles, setLetrasVisibles] = useState(false)
   const [bienvenidaVisible, setBienvenidaVisible] = useState(true)
+  const [aVisible, setAVisible] = useState(false)
   const [atmosVisible, setAtmosVisible] = useState(false)
   const [dibujarTrazo, setDibujarTrazo] = useState(false)
   const [indiceImagen, setIndiceImagen] = useState(-1)
@@ -79,13 +80,15 @@ export function Preloader({ listo, onTerminado }: PreloaderProps) {
   useEffect(() => {
     document.body.style.overflow = 'hidden'
 
-    const inicioImagenes = 3550
+    const inicioImagenes = 4930
     const temporizadores = [
       setTimeout(() => setLetrasVisibles(true), 20),
       setTimeout(() => setBienvenidaVisible(false), 820),
-      setTimeout(() => setAtmosVisible(true), 1120),
-      setTimeout(() => setDibujarTrazo(true), 1900),
-      setTimeout(() => setAtmosVisible(false), 3050),
+      setTimeout(() => setAVisible(true), 1200),
+      setTimeout(() => setAVisible(false), 1950),
+      setTimeout(() => setAtmosVisible(true), 2500),
+      setTimeout(() => setDibujarTrazo(true), 3280),
+      setTimeout(() => setAtmosVisible(false), 4430),
       setTimeout(() => setMostrarCaja(true), inicioImagenes - 150),
       ...CIUDADES_CARRUSEL.map((_, i) =>
         setTimeout(() => setIndiceImagen(i), inicioImagenes + i * CADENCIA_IMAGEN),
@@ -176,6 +179,17 @@ export function Preloader({ listo, onTerminado }: PreloaderProps) {
             {letra}
           </span>
         ))}
+      </p>
+      <p
+        className="absolute inset-0 flex items-center justify-center font-sans text-2xl uppercase tracking-[0.35em] text-atmos-slate"
+        style={{
+          opacity: aVisible ? 1 : 0,
+          transform: aVisible ? 'translateY(0)' : 'translateY(14px)',
+          transition: `opacity 0.6s ${EASE}, transform 0.6s ${EASE}`,
+        }}
+        aria-hidden
+      >
+        à
       </p>
       <p
         className="absolute inset-0 flex items-center justify-center font-display text-6xl italic text-atmos-ink"
