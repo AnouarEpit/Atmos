@@ -107,6 +107,11 @@ body {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+/* Cambio de categoría en Noticias (nav desktop + pestañas mobile): deslizamiento lateral leve evoca "pasar una hoja" sin flip 3D. Desplazamiento chico (8px) a propósito — la sensación de "hoja" la da la curva de asentamiento, no la distancia recorrida; de más grande se siente lento aunque la duración sea corta. */
+@keyframes atmos-pasar-pagina {
+  from { opacity: 0; transform: translateX(8px) scale(0.995); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
 /* Ramas decorativas detrás del panel de DatosDetalle: balanceo sutil tipo viento, amplitud chica (MOTION 4/10). */
 @keyframes atmos-rama-balanceo {
   0%, 100% { transform: rotate(-2deg); }

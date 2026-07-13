@@ -22,8 +22,10 @@ interface Props {
  * Mobile-only (montado dentro de un wrapper `md:hidden` en `Noticias.tsx`):
  * tres pestañas en vez de apilar destacada + lista + "Dans le monde" + "Bourse"
  * en serie (scroll eterno hasta Bourse). Mismo lenguaje de pestañas que ya usa
- * `Forecast` mobile (píldora activa `bg-atmos-ink`, panel con fade+slide
- * `atmos-aparecer` al cambiar) — reusado, no reinventado.
+ * `Forecast` mobile (píldora activa `bg-atmos-ink`) — pero panel usa
+ * `atmos-pasar-pagina` (deslizamiento lateral corto) en vez de
+ * `atmos-aparecer`, feedback pedido: cambio de categoría debe sentirse
+ * como pasar una hoja, suave pero sin arrastrarse.
  * "Bourse" combina el ticker de mercados con noticias financieras reales
  * debajo (mismo estilo destacada+lista que el resto de pestañas).
  */
@@ -48,7 +50,7 @@ export function NoticiasMobile({ destacada, resto }: Props) {
         ))}
       </div>
 
-      <div key={activa} className="animate-[atmos-aparecer_300ms_ease-out]">
+      <div key={activa} className="animate-[atmos-pasar-pagina_420ms_cubic-bezier(0.22,1,0.36,1)]">
         {activa === 'une' && (
           <div>
             <ArticuloDestacado noticia={destacada} />

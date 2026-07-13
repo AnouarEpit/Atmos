@@ -47,7 +47,11 @@ export function ItemNoticiaCompacto({ noticia }: Props) {
               <time dateTime={noticia.publicadoEn}>il y a {noticia.publicadoHaceHoras}h</time>
             </span>
           </div>
-          <h4 className="font-display text-lg font-normal text-atmos-ink leading-snug">{noticia.titular}</h4>
+          {/* line-clamp-2: altura por ítem predecible (rail y grid "Aussi dans l'actualité"
+              comparten este componente) sin depender de cuán largo venga el titular. */}
+          <h4 className="font-display text-lg font-normal text-atmos-ink leading-snug line-clamp-2">
+            {noticia.titular}
+          </h4>
         </div>
       </a>
     </article>

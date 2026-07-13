@@ -35,7 +35,12 @@ export function ArticuloDestacado({ noticia }: Props) {
         <h3 className="font-display text-[1.625rem] font-normal text-atmos-ink leading-snug mb-3">
           {noticia.titular}
         </h3>
-        <p className="font-sans text-base text-atmos-slate leading-relaxed mb-4 max-w-2xl">{noticia.extracto}</p>
+        {/* line-clamp-2: altura del destacado predecible por diseño (no depende de cuán
+            largo venga el extracto ese día) — mismo criterio que el resto de recortes
+            del sitio, ahora resuelto en CSS puro en vez de medir con JS en runtime. */}
+        <p className="font-sans text-base text-atmos-slate leading-relaxed mb-4 max-w-2xl line-clamp-2">
+          {noticia.extracto}
+        </p>
         <p className="font-mono text-xs uppercase tracking-wider text-atmos-slate inline-flex items-center gap-1.5">
           {noticia.fuente}
           <span aria-hidden className="inline-block transition-transform duration-300 group-hover:translate-x-1">

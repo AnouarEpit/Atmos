@@ -20,8 +20,8 @@ function Palabra({ texto }: { texto: string }) {
       {texto.split('').map((letra, i) => (
         <span
           key={i}
-          className="inline-block motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:group-hover:-translate-y-[3px]"
-          style={{ transitionDelay: `${i * 22}ms` }}
+          className="inline-block motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:group-hover:-translate-y-[3px]"
+          style={{ transitionDelay: `${i * 28}ms` }}
         >
           {letra === ' ' ? ' ' : letra}
         </span>
@@ -60,14 +60,31 @@ export function NavCategorias({ activa, onCambiar }: Props) {
               onClick={() => onCambiar(cat.alcance)}
               aria-label={cat.label}
               aria-pressed={esActiva}
-              className={`group relative pb-1 font-display text-base text-atmos-ink rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atmos-gold ${
-                esActiva ? 'italic' : ''
-              }`}
+              className="group relative pb-1 font-display text-base text-atmos-ink rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atmos-gold"
             >
-              <Palabra texto={cat.label} />
+              {/* Itálica no es animable por CSS (font-style es discreto, no interpola) — se
+                  simula con dos capas apiladas (regular/itálica real, mismo Fraunces) que
+                  hacen crossfade de opacidad, lento y suave en vez del salto instantáneo
+                  que daba alternar la clase `italic` sola. */}
+              <span className="relative inline-flex">
+                <span
+                  className={`inline-flex motion-safe:transition-opacity motion-safe:duration-[700ms] motion-safe:ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                    esActiva ? 'opacity-0' : 'opacity-100'
+                  }`}
+                >
+                  <Palabra texto={cat.label} />
+                </span>
+                <span
+                  className={`pointer-events-none absolute inset-0 inline-flex italic motion-safe:transition-opacity motion-safe:duration-[700ms] motion-safe:ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                    esActiva ? 'opacity-100' : 'opacity-0'
+                  }`}
+                >
+                  <Palabra texto={cat.label} />
+                </span>
+              </span>
               <span
                 aria-hidden="true"
-                className={`absolute inset-x-0 -bottom-0.5 h-px origin-left bg-atmos-gold motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out ${
+                className={`absolute inset-x-0 -bottom-0.5 h-px origin-left bg-atmos-gold motion-safe:transition-transform motion-safe:duration-[650ms] motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] ${
                   esActiva ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                 }`}
               />

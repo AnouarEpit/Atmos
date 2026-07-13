@@ -11,7 +11,7 @@ import { FilaZen } from './components/FilaZen'
 import { EstadisticaDesktop } from './components/EstadisticaDesktop'
 import { FormasAtmosfericas } from './components/FormasAtmosfericas'
 import { SubrayadoAnimado } from './components/SubrayadoAnimado'
-import { useEscalaPanel } from './hooks/useEscalaPanel'
+import { useEscalaPanel } from '../../shared/hooks/useEscalaPanel'
 
 interface Props {
   actual?: ClimaActual

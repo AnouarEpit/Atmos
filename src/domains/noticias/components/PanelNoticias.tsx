@@ -5,21 +5,20 @@ import { ItemNoticiaCompacto } from './ItemNoticiaCompacto'
 
 interface Props {
   alcance: AlcanceNoticias
-  /**
-   * 'destacada' (default): primer artículo grande (`ArticuloDestacado`) + resto
-   * compacto — para el feed principal. 'compacta': todos los artículos en lista
-   * compacta, sin destacar ninguno — para el sidebar "Dans le monde", que es un
-   * digest de referencia rápida, no la protagonista de la columna.
-   */
-  variante?: 'destacada' | 'compacta'
+  /** Tope fijo de artículos secundarios bajo el destacado — sin esta prop
+      (NoticiasMobile) se muestran todos, sin cambios. Con altura por ítem ya
+      acotada (`line-clamp-2`), un número fijo alcanza para mantener la
+      columna dentro de un rango predecible sin medir nada en runtime. */
+  maxSecundarios?: number
 }
 
 /**
- * Panel de noticias genérico: mismo estilo que "À la une" (sin tarjeta blanca,
- * son noticias igual) — usado tanto en las pestañas mobile (`NoticiasMobile`)
- * como en el nav de categorías desktop (`Noticias.tsx`).
+ * Panel de noticias genérico: primer artículo grande (`ArticuloDestacado`) +
+ * resto compacto, mismo estilo que "À la une" (sin tarjeta blanca, son
+ * noticias igual) — usado tanto en las pestañas mobile (`NoticiasMobile`)
+ * como en el feed principal del nav de categorías desktop (`Noticias.tsx`).
  */
-export function PanelNoticias({ alcance, variante = 'destacada' }: Props) {
+export function PanelNoticias({ alcance, maxSecundarios }: Props) {
   const { data } = useQuery({
     queryKey: ['noticias', alcance],
     queryFn: () => obtenerNoticias(alcance),
@@ -28,24 +27,17 @@ export function PanelNoticias({ alcance, variante = 'destacada' }: Props) {
 
   if (!data?.length) return null
 
-  if (variante === 'compacta') {
-    return (
-      <div>
-        {data.map((noticia) => (
-          <ItemNoticiaCompacto key={noticia.id} noticia={noticia} />
-        ))}
-      </div>
-    )
-  }
-
   const [destacada, ...resto] = data
+  const mostrar = maxSecundarios != null ? resto.slice(0, maxSecundarios) : resto
 
   return (
     <div>
       <ArticuloDestacado noticia={destacada} />
-      {resto.map((noticia) => (
-        <ItemNoticiaCompacto key={noticia.id} noticia={noticia} />
-      ))}
+      <div>
+        {mostrar.map((noticia) => (
+          <ItemNoticiaCompacto key={noticia.id} noticia={noticia} />
+        ))}
+      </div>
     </div>
   )
 }
