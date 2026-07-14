@@ -70,7 +70,7 @@ export function Noticias() {
   const paraAussi = (dataPrincipal ?? []).slice(1 + SECUNDARIOS_COLUMNA, 1 + SECUNDARIOS_COLUMNA + AUSSI_MAX)
 
   return (
-    <section ref={escalaSeccion} id="actus" className="relative isolate rounded-t-[3.5rem] bg-atmos-sable px-6 md:px-10 py-16">
+    <section ref={escalaSeccion} id="actus" className="relative isolate rounded-[3.5rem] bg-atmos-sable px-6 md:px-10 py-16">
       <div className="max-w-6xl mx-auto">
         {/* Header compartido solo mobile: en desktop el nav de categorías (abajo)
             reemplaza este título único — "À la une" es una categoría más del nav. */}

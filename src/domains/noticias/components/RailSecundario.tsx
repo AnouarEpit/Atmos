@@ -17,7 +17,11 @@ export function RailSecundario({ data, max = 5 }: Props) {
   if (!data?.length) return null
 
   return (
-    <div>
+    // [&>article:last-child]:border-b-0: el último ítem no arrastra su propio
+    // borde inferior colgando solo — el espacio que sigue (hasta "Aussi dans
+    // l'actualité") ya trae su propio `border-t`, dos líneas con hueco en medio
+    // se leían como una línea suelta sin sentido.
+    <div className="[&>article:last-child]:border-b-0">
       {data.slice(0, max).map((noticia) => (
         <ItemNoticiaCompacto key={noticia.id} noticia={noticia} />
       ))}

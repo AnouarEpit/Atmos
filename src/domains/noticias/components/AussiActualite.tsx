@@ -19,7 +19,7 @@ export function AussiActualite({ noticias }: Props) {
   if (!noticias.length) return null
 
   return (
-    <div className="mt-16 border-t border-atmos-slate/20 pt-10">
+    <div className="mt-8 border-t border-atmos-slate/20 pt-8">
       <p className="font-mono text-xs uppercase tracking-wider text-atmos-slate mb-6">Aussi dans l'actualité</p>
       <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
         {noticias.map((noticia) => (

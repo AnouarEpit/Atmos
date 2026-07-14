@@ -43,6 +43,18 @@ const CATEGORIAS_FR = {
 const DURACION_CACHE_MS = 15 * 60 * 1000
 const cachePorAlcance = new Map()
 
+// Investing.com (fuente wire de casi todos los artículos de `category=business`)
+// no manda foto real para la mayoría de sus notas — manda este mismo thumbnail
+// genérico de 108×81px como placeholder propio. Pasa el filtro `image=1` de
+// NewsData.io (es una URL válida), pero se ve pixelado estirado a tamaño de
+// tarjeta real. Tratarlo como "sin imagen" (el frontend ya degrada bien sin
+// foto) en vez de mostrar el placeholder genérico ampliado.
+const IMAGENES_GENERICAS = [/i-invdn-com\.investing\.com\/news\/world_news_2/]
+
+function esImagenGenerica(url) {
+  return typeof url === 'string' && IMAGENES_GENERICAS.some((patron) => patron.test(url))
+}
+
 function traducirCategoria(categorias) {
   const primera = categorias?.[0] ?? 'other'
   return CATEGORIAS_FR[primera] ?? 'Actualité'
@@ -62,7 +74,13 @@ async function obtenerDeNewsData(alcance) {
     language: 'fr',
     image: '1',
     removeduplicate: '1',
-    size: alcance === 'francia' ? '8' : '6',
+    // Antes 6 para todo lo que no fuera 'francia' — "Aussi dans l'actualité"
+    // necesita el índice 6 (`slice(4,7)` en Noticias.tsx), con solo 6 artículos
+    // totales quedaba en 2 en vez de 3 en Monde/Économie/Sport/Culture. Probado
+    // que el free tier de NewsData.io soporta size hasta 10 sin problema en
+    // cualquier categoría (verificado en vivo con curl) — 8 en todos los
+    // alcances por igual, mismo tope que ya usaba 'francia'.
+    size: '8',
   })
   // Sacar `country` solo (sin más) seguía devolviendo mayoría Francia — el francés
   // es idioma dominante de Francia, no filtra "internacional" por sí solo.
@@ -102,7 +120,7 @@ async function obtenerDeNewsData(alcance) {
       extracto: articulo.description || articulo.title,
       fuente: articulo.source_name,
       enlace: articulo.link,
-      imagen: articulo.image_url,
+      imagen: esImagenGenerica(articulo.image_url) ? undefined : articulo.image_url,
       publicadoHaceHoras: horas,
       publicadoEn,
     }

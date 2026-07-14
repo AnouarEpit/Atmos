@@ -4,6 +4,7 @@ import { HeroTemperatura } from './domains/hero-temperatura'
 import { Forecast } from './domains/forecast'
 import { DatosDetalle } from './domains/datos-detalle'
 import { Noticias } from './domains/noticias'
+import { Footer } from './domains/footer'
 import { ciudadPorDefecto, type Ciudad } from './lib/data/ciudades'
 import { useClimaActual } from './shared/hooks/useClimaActual'
 import { useLenis } from './shared/hooks/useLenis'
@@ -49,6 +50,7 @@ export default function App() {
       <Forecast dias={clima?.daily} />
       <DatosDetalle actual={clima?.current} timezoneOffset={clima?.timezone_offset} />
       <Noticias />
+      <Footer />
     </>
   )
 }

@@ -33,7 +33,7 @@ export function PanelNoticias({ alcance, maxSecundarios }: Props) {
   return (
     <div>
       <ArticuloDestacado noticia={destacada} />
-      <div>
+      <div className="[&>article:last-child]:border-b-0">
         {mostrar.map((noticia) => (
           <ItemNoticiaCompacto key={noticia.id} noticia={noticia} />
         ))}
