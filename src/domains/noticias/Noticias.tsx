@@ -31,14 +31,24 @@ export function Noticias() {
   // ya usa al entrar — un "cierre" reconocible, no solo el mismo crecimiento en reversa.
   // Timing asimétrico (a pedido explícito, tras probar la versión simétrica 50/50 y sentirse
   // demasiado temprana/rápida): crece rápido al entrar (15% del recorrido), queda en reposo
-  // a escala 1 durante el tramo largo de en medio, y solo se encoge en el último 35% del
-  // recorrido — hacia "Aussi dans l'actualité"/Bourse, justo antes del Footer — acelerando
-  // hacia el final (`power2.in`) en vez de encogerse a ritmo constante.
+  // a escala 1 durante el tramo largo de en medio, y solo se encoge en el último tramo del
+  // recorrido, acelerando hacia el final (`power2.in`) en vez de a ritmo constante.
+  // duracionSalida=0.6 medido con Playwright (no adivinado): "Aussi dans l'actualité" entra
+  // en viewport cerca de donde arranca el encogimiento, como pidió el usuario.
+  // end:'max' (keyword real de ScrollTrigger, no 'bottom bottom'): con 'bottom bottom' el
+  // cierre llegaba a su escala final bastante antes del scroll máximo real del documento y
+  // quedaba plano el resto — el usuario pidió que siguiera encogiéndose hasta el fondo de
+  // verdad. 'max' ata el final del rango directamente al scroll máximo posible de la página,
+  // sin importar cuánto mida el Footer debajo. easeSalida a 'power1.in' (antes 'power2.in'):
+  // misma familia que ya usa el encogimiento del hero (useEncogimientoScroll), pedido
+  // explícito de que se sienta "más suave y natural" — power1 acelera de forma más gradual
+  // que power2 hacia el final, menos brusco.
   const escalaSeccion = useEscalaPanel<HTMLElement>(0.96, {
     salida: 0.82,
     duracionEntrada: 0.15,
-    duracionSalida: 0.35,
-    easeSalida: 'power2.in',
+    duracionSalida: 0.6,
+    easeSalida: 'power1.in',
+    end: 'max',
   })
   // Ya no depende de la ciudad seleccionada: son noticias reales de Francia (NewsData.io,
   // plan free no filtra de forma confiable por ciudad), no un feed personalizado por ciudad

@@ -27,6 +27,16 @@ interface OpcionesEscalaPanel {
   /** Easing del tramo de salida (default 'none', lineal — mismo timing de siempre). Noticias
    * usa 'power2.in' para que se sienta lento al empezar y cada vez más rápido hacia el final. */
   easeSalida?: string
+  /**
+   * Punto final del ScrollTrigger, formato GSAP (default `'bottom top'`, mismo de siempre —
+   * DatosDetalle sin cambios). Noticias usa `'bottom bottom'`: el Footer que sigue es más
+   * corto que un viewport, así que `'bottom top'` (que exige scrollear hasta que el borde
+   * inferior de la sección llegue al TOPE del viewport) nunca se alcanza en scroll normal —
+   * confirmado con Playwright, el cierre se frenaba en ~0.94 en vez de la escala final
+   * pedida, justo en el tope real de scroll del documento. `'bottom bottom'` sí se alcanza
+   * siempre que la sección sea más alta que el viewport (lo es).
+   */
+  end?: string
 }
 
 /**
@@ -48,7 +58,13 @@ interface OpcionesEscalaPanel {
  */
 export function useEscalaPanel<T extends HTMLElement>(
   desde = 0.9,
-  { salida = desde, duracionEntrada = 0.5, duracionSalida = 0.5, easeSalida = 'none' }: OpcionesEscalaPanel = {},
+  {
+    salida = desde,
+    duracionEntrada = 0.5,
+    duracionSalida = 0.5,
+    easeSalida = 'none',
+    end = 'bottom top',
+  }: OpcionesEscalaPanel = {},
 ) {
   const mmRef = useRef<ReturnType<typeof gsap.matchMedia> | null>(null)
 
@@ -63,7 +79,7 @@ export function useEscalaPanel<T extends HTMLElement>(
 
       mm.add('(min-width: 768px)', () => {
         const tl = gsap.timeline({
-          scrollTrigger: { trigger: nodo, start: 'top bottom', end: 'bottom top', scrub: true },
+          scrollTrigger: { trigger: nodo, start: 'top bottom', end, scrub: true },
         })
         tl.fromTo(nodo, { scale: desde }, { scale: 1, ease: 'none', duration: duracionEntrada })
         tl.to(nodo, { scale: salida, ease: easeSalida, duration: duracionSalida }, 1 - duracionSalida)
@@ -74,6 +90,6 @@ export function useEscalaPanel<T extends HTMLElement>(
         }
       })
     },
-    [desde, salida, duracionEntrada, duracionSalida, easeSalida],
+    [desde, salida, duracionEntrada, duracionSalida, easeSalida, end],
   )
 }

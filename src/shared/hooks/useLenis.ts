@@ -23,9 +23,22 @@ export function useLenis() {
     gsap.ticker.add(onTick)
     gsap.ticker.lagSmoothing(0)
 
+    // Contenido async (fotos de noticias, video del recuadro atmosférico, forecast) sigue
+    // cambiando la altura real de la página bastante después del mount inicial — sin refrescar,
+    // los ScrollTrigger creados temprano (useEscalaPanel, useRevelarEnScroll) quedan con
+    // start/end calculados contra una página más corta de lo que termina siendo, y el timing
+    // se desincroniza en silencio (confirmado: el panel de Noticias llegaba a su encogimiento
+    // final ~1600px antes de lo esperado, con el `end` cacheado del ScrollTrigger apuntando a
+    // un punto muy anterior al real). Mismo fix ya validado en la sesión del Footer/cortina
+    // (revertida junto con ese efecto en particular) — reincorporado acá de forma general,
+    // para cualquier ScrollTrigger del sitio, no solo uno.
+    const resizeObserver = new ResizeObserver(() => ScrollTrigger.refresh())
+    resizeObserver.observe(document.body)
+
     return () => {
       gsap.ticker.remove(onTick)
       lenis.destroy()
+      resizeObserver.disconnect()
     }
   }, [])
 }
