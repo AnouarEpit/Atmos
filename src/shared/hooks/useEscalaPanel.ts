@@ -4,6 +4,31 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
+interface OpcionesEscalaPanel {
+  /** Escala de partida/llegada al entrar (default 0.9, mismo valor que ya usaba DatosDetalle). */
+  desde?: number
+  /** Escala de llegada al SALIR (default `desde`, simétrico). Noticias usa un valor más
+   * marcado que la entrada — un "cierre" reconocible antes del Footer, no el mismo
+   * crecimiento en reversa. */
+  salida?: number
+  /**
+   * Fracción (0-1) del recorrido de scroll de la sección que tarda en llegar a tamaño
+   * completo tras entrar. Default 0.5 (mismo timing simétrico de siempre).
+   */
+  duracionEntrada?: number
+  /**
+   * Fracción (0-1) del recorrido que tarda en encogerse antes de terminar de salir —
+   * ocurre en el ÚLTIMO tramo del scroll de la sección, no repartido a la mitad. Con
+   * `duracionEntrada + duracionSalida < 1` queda un tramo intermedio "en reposo" (escala 1)
+   * entre el crecimiento y el encogimiento — el panel se encoge recién mucho más abajo,
+   * no a mitad de camino. Default 0.5 (sin gap, mismo timing de siempre).
+   */
+  duracionSalida?: number
+  /** Easing del tramo de salida (default 'none', lineal — mismo timing de siempre). Noticias
+   * usa 'power2.in' para que se sienta lento al empezar y cada vez más rápido hacia el final. */
+  easeSalida?: string
+}
+
 /**
  * Panel flotante de DatosDetalle: crece levemente al entrar en viewport y se
  * encoge de nuevo al salir hacia Noticias — mismo mecanismo scrub que
@@ -18,19 +43,20 @@ gsap.registerPlugin(ScrollTrigger)
  * useRevelarEnScroll (un useEffect con ref object corre una sola vez con el
  * ref en null y no se vuelve a disparar solo porque el nodo aparezca).
  *
- * `desde` (default 0.9, mismo valor que ya usaba DatosDetalle — retrocompatible):
- * escala de partida/llegada del scrub. Noticias, la sección siguiente, usa un
- * valor más leve (0.96) a pedido explícito — dos secciones seguidas con la
- * misma intensidad de "crece/encoge" se leían como el mismo efecto repetido,
- * no dos gestos distintos.
+ * Respeta `prefers-reduced-motion`: con la preferencia activa, ni se crea el
+ * tween — el panel queda fijo en su tamaño real, sin scale scroll-scrubbed.
  */
-export function useEscalaPanel<T extends HTMLElement>(desde = 0.9) {
+export function useEscalaPanel<T extends HTMLElement>(
+  desde = 0.9,
+  { salida = desde, duracionEntrada = 0.5, duracionSalida = 0.5, easeSalida = 'none' }: OpcionesEscalaPanel = {},
+) {
   const mmRef = useRef<ReturnType<typeof gsap.matchMedia> | null>(null)
 
   return useCallback(
     (nodo: T | null) => {
       mmRef.current?.revert()
       if (!nodo) return
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
       const mm = gsap.matchMedia()
       mmRef.current = mm
@@ -39,11 +65,8 @@ export function useEscalaPanel<T extends HTMLElement>(desde = 0.9) {
         const tl = gsap.timeline({
           scrollTrigger: { trigger: nodo, start: 'top bottom', end: 'bottom top', scrub: true },
         })
-        tl.fromTo(nodo, { scale: desde }, { scale: 1, ease: 'none', duration: 1 }).to(nodo, {
-          scale: desde,
-          ease: 'none',
-          duration: 1,
-        })
+        tl.fromTo(nodo, { scale: desde }, { scale: 1, ease: 'none', duration: duracionEntrada })
+        tl.to(nodo, { scale: salida, ease: easeSalida, duration: duracionSalida }, 1 - duracionSalida)
 
         return () => {
           tl.scrollTrigger?.kill()
@@ -51,6 +74,6 @@ export function useEscalaPanel<T extends HTMLElement>(desde = 0.9) {
         }
       })
     },
-    [desde],
+    [desde, salida, duracionEntrada, duracionSalida, easeSalida],
   )
 }

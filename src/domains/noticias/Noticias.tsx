@@ -26,7 +26,20 @@ export function Noticias() {
   // Mismo mecanismo que el panel flotante de DatosDetalle (useEscalaPanel, solo desktop vía
   // gsap.matchMedia interno al hook): la sección entera (esquinas redondeadas + fondo sable)
   // aparece pequeña y crece hasta su tamaño real siguiendo el scroll, en vez de solo fade+y.
-  const escalaSeccion = useEscalaPanel<HTMLElement>(0.96)
+  // Salida (0.82) más marcada que la entrada (0.96) a pedido explícito: Noticias se encoge
+  // notoriamente antes de que aparezca el Footer, en vez del mismo gesto simétrico leve que
+  // ya usa al entrar — un "cierre" reconocible, no solo el mismo crecimiento en reversa.
+  // Timing asimétrico (a pedido explícito, tras probar la versión simétrica 50/50 y sentirse
+  // demasiado temprana/rápida): crece rápido al entrar (15% del recorrido), queda en reposo
+  // a escala 1 durante el tramo largo de en medio, y solo se encoge en el último 35% del
+  // recorrido — hacia "Aussi dans l'actualité"/Bourse, justo antes del Footer — acelerando
+  // hacia el final (`power2.in`) en vez de encogerse a ritmo constante.
+  const escalaSeccion = useEscalaPanel<HTMLElement>(0.96, {
+    salida: 0.82,
+    duracionEntrada: 0.15,
+    duracionSalida: 0.35,
+    easeSalida: 'power2.in',
+  })
   // Ya no depende de la ciudad seleccionada: son noticias reales de Francia (NewsData.io,
   // plan free no filtra de forma confiable por ciudad), no un feed personalizado por ciudad
   // como simulaba el mock anterior. staleTime largo: el backend ya cachea 15min de su lado,
