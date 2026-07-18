@@ -123,6 +123,40 @@ body {
   to { transform: translateX(-50%); }
 }
 
+/* TextoRevelado: rebote tipo elastic.out real (varias oscilaciones), no un
+   solo overshoot — pedido explícito de acercarse a la referencia SplitText/
+   GSAP (elastic.out(1,0.3)) sin usar el plugin. `--distancia-letra` la fija
+   cada instancia inline (custom property, así el keyframe queda genérico en
+   vez de hardcodear un desplazamiento fijo). */
+@keyframes atmos-letra-elastica {
+  0% { opacity: 0; transform: translateY(var(--distancia-letra, 40px)); }
+  55% { opacity: 1; transform: translateY(calc(var(--distancia-letra, 40px) * -0.22)); }
+  75% { transform: translateY(calc(var(--distancia-letra, 40px) * 0.1)); }
+  90% { transform: translateY(calc(var(--distancia-letra, 40px) * -0.04)); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+/* Reentrada del modo loop de TextoRevelado: sin rebote — pedido explícito de
+   que, al reaparecer tras cada ciclo, se sienta "más suave y natural" que el
+   rebote elástico de la primera entrada (`atmos-letra-elastica`, que queda
+   reservada para el modo one-shot si se reusa en otro lado). Una sola
+   deceleración exponencial, misma curva "suave" que ya usa el resto del
+   sitio (`cubic-bezier(0.16,1,0.3,1)`), sin oscilación. */
+@keyframes atmos-letra-suave {
+  0% { opacity: 0; transform: translateY(var(--distancia-letra, 40px)); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+/* Salida del modo loop de TextoRevelado: SINCRONIZADA — mismo delay (0) y
+   duración en todas las letras a la vez (no en cascada). Con stagger en la
+   salida la frase nunca llegaba a verse completa de una: mientras las
+   últimas letras todavía entraban, las primeras ya estaban saliendo — nunca
+   había ventana de lectura real. 0% coincide con el final de
+   `atmos-letra-suave`/`atmos-letra-elastica` (opacity 1, translateY 0) — el
+   cambio de una animación a la otra no pega salto. Orquestado desde
+   `TextoRevelado` (setTimeout, ver ESPERA_MS/SALIDA_MS ahí). */
+@keyframes atmos-letra-desvanecer {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(var(--distancia-letra, 40px)); }
+}
 /* Scrollbar fina para paneles de vidrio (BuscadorCiudad) — la nativa del navegador desentona con el resto del diseño.
    Invisible en reposo, aparece solo al pasar el mouse (que es también cuando se hace scroll con rueda, gracias a data-lenis-prevent). */
 .scrollbar-fina {

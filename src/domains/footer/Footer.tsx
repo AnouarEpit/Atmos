@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { TextoRevelado } from '../../shared/ui/TextoRevelado'
 
 const ENLACES = [
   { href: '#accueil', label: 'Accueil' },
@@ -151,7 +152,8 @@ export function Footer() {
               ))}
             </span>
             <p style={estiloReveal(DELAY_RESTO_BARRA, 10)} className="mt-3 max-w-xs font-sans text-sm text-atmos-slate">
-              Le temps qu'il fait, les nouvelles qui comptent un seul regard sur le monde.
+              Le temps qu'il fait, les nouvelles qui comptent{' '}
+              <TextoRevelado texto="un seul regard sur le monde." className="font-bold text-atmos-ink" loop />
             </p>
           </div>
 
